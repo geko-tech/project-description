@@ -1,0 +1,56 @@
+import Foundation
+
+/// Possible products types.
+@frozen
+public enum Product: String, Codable, Equatable, CaseIterable {
+    /// An application.
+    case app
+    /// A static library.
+    case staticLibrary = "static_library"
+    /// A dynamic library.
+    case dynamicLibrary = "dynamic_library"
+    /// A dynamic framework.
+    case framework
+    /// A static framework.
+    case staticFramework
+    /// A unit tests bundle.
+    case unitTests = "unit_tests"
+    /// A UI tests bundle.
+    case uiTests = "ui_tests"
+    /// A custom bundle. (currently only iOS resource bundles are supported).
+    case bundle
+    /// A command line tool (macOS platform only).
+    case commandLineTool
+    /// An application extension.
+    case appExtension = "app_extension"
+    /// A Watch application. (watchOS platform only) .
+    case watch2App
+    /// A Watch application extension. (watchOS platform only).
+    case watch2Extension
+    /// A TV Top Shelf Extension.
+    case tvTopShelfExtension
+    /// An iMessage extension. (iOS platform only)
+    case messagesExtension
+    /// A sticker pack extension.
+    case stickerPackExtension = "sticker_pack_extension"
+    /// An appClip. (iOS platform only).
+    case appClip
+    //    case watchApp
+    //    case watchExtension
+    //    case tvIntentsExtension
+    //    case messagesApplication
+    /// An XPC. (macOS platform only).
+    case xpc
+    /// An system extension. (macOS platform only).
+    case systemExtension
+    /// An ExtensionKit extension.
+    case extensionKitExtension = "extension_kit_extension"
+    /// A Swift Macro
+    /// Although Apple doesn't officially support Swift Macro Xcode Project targets, we
+    /// enable them by adding a command line tool target, a target dependency in
+    /// the dependent targets, and the right build settings to use the macro executable.
+    case macro
+    /// Aggregate target a spacial type of target that lets you build a group of target at once
+    /// An aggregate target has no associated product and no build rules
+    case aggregateTarget = "aggregate_target"
+}

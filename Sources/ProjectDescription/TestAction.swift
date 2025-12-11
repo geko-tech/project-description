@@ -1,0 +1,209 @@
+import Foundation
+
+/// An action that tests the built products.
+///
+/// You can create a test action with either a set of test targets or test plans using the `.targets` or `.testPlans` static
+/// methods respectively.
+public struct TestAction: Equatable, Codable {
+    /// List of test plans. The first in the list will be the default plan.
+    public var testPlans: [TestPlan]?
+
+    /// A list of testable targets, that are targets which are defined in the project with testable information.
+    public var targets: [TestableTarget]
+
+    /// Command line arguments passed on launch and environment variables.
+    public var arguments: Arguments?
+
+    /// Build configuration to run the test with.
+    public var configuration: ConfigurationName
+
+    /// Whether a debugger should be attached to the test process or not.
+    public var attachDebugger: Bool
+
+    /// A target that will be used to expand the variables defined inside Environment Variables definition (e.g. $SOURCE_ROOT)
+    public var expandVariableFromTarget: TargetReference?
+
+    /// A list of actions that are executed before starting the tests-run process.
+    public var preActions: [ExecutionAction]
+
+    /// A list of actions that are executed after the tests-run process.
+    public var postActions: [ExecutionAction]
+
+    /// List of options to set to the action.
+    public var options: TestActionOptions
+
+    /// List of diagnostics options to set to the action.
+    public var diagnosticsOptions: SchemeDiagnosticsOptions
+
+    /// List of testIdentifiers to skip to the test
+    public var skippedTests: [String]?
+
+    public init(
+        targets: [TestableTarget],
+        arguments: Arguments?,
+        configurationName: String,
+        attachDebugger: Bool,
+        coverage: Bool,
+        codeCoverageTargets: [TargetReference],
+        expandVariableFromTarget: TargetReference?,
+        preActions: [ExecutionAction],
+        postActions: [ExecutionAction],
+        diagnosticsOptions: SchemeDiagnosticsOptions,
+        language: String? = nil,
+        region: String? = nil,
+        preferredScreenCaptureFormat: ScreenCaptureFormat? = nil,
+        testPlans: [TestPlan]? = nil,
+        skippedTests: [String]? = nil
+    ) {
+        self.testPlans = testPlans
+        self.targets = targets
+        self.arguments = arguments
+        self.configuration = .configuration(configurationName)
+        self.attachDebugger = attachDebugger
+        self.preActions = preActions
+        self.postActions = postActions
+        self.expandVariableFromTarget = expandVariableFromTarget
+        self.diagnosticsOptions = diagnosticsOptions
+        self.skippedTests = skippedTests
+
+        self.options = .options(
+            language: language.map{ SchemeLanguage(identifier: $0) },
+            region: region,
+            preferredScreenCaptureFormat: preferredScreenCaptureFormat,
+            coverage: coverage,
+            codeCoverageTargets: codeCoverageTargets
+        )
+    }
+
+    private init(
+        testPlans: [TestPlan]?,
+        targets: [TestableTarget],
+        arguments: Arguments?,
+        configuration: ConfigurationName,
+        attachDebugger: Bool,
+        expandVariableFromTarget: TargetReference?,
+        preActions: [ExecutionAction],
+        postActions: [ExecutionAction],
+        options: TestActionOptions,
+        diagnosticsOptions: SchemeDiagnosticsOptions,
+        skippedTests: [String]?
+    ) {
+        self.testPlans = testPlans
+        self.targets = targets
+        self.arguments = arguments
+        self.configuration = configuration
+        self.attachDebugger = attachDebugger
+        self.preActions = preActions
+        self.postActions = postActions
+        self.expandVariableFromTarget = expandVariableFromTarget
+        self.options = options
+        self.diagnosticsOptions = diagnosticsOptions
+        self.skippedTests = skippedTests
+    }
+
+    /// Returns a test action from a list of targets to be tested.
+    /// - Parameters:
+    ///   - targets: List of targets to be tested.
+    ///   - arguments: Arguments passed when running the tests.
+    ///   - configuration: Configuration to be used.
+    ///   - attachDebugger: A boolean controlling whether a debugger is attached to the process running the tests.
+    ///   - expandVariableFromTarget: A target that will be used to expand the variables defined inside Environment Variables
+    /// definition. When nil, it does not expand any variables.
+    ///   - preActions: Actions to execute before running the tests.
+    ///   - postActions: Actions to execute after running the tests.
+    ///   - options: Test options.
+    ///   - diagnosticsOptions: Diagnostics options.
+    /// - Returns: An initialized test action.
+    public static func targets(
+        _ targets: [TestableTarget],
+        arguments: Arguments? = nil,
+        configuration: ConfigurationName = .debug,
+        attachDebugger: Bool = true,
+        expandVariableFromTarget: TargetReference? = nil,
+        preActions: [ExecutionAction] = [],
+        postActions: [ExecutionAction] = [],
+        options: TestActionOptions = .options(),
+        diagnosticsOptions: SchemeDiagnosticsOptions = .options(performanceAntipatternCheckerEnabled: false),
+        skippedTests: [String] = []
+    ) -> Self {
+        Self(
+            testPlans: nil,
+            targets: targets,
+            arguments: arguments,
+            configuration: configuration,
+            attachDebugger: attachDebugger,
+            expandVariableFromTarget: expandVariableFromTarget,
+            preActions: preActions,
+            postActions: postActions,
+            options: options,
+            diagnosticsOptions: diagnosticsOptions,
+            skippedTests: skippedTests
+        )
+    }
+
+    /// Returns a test action from a list of test plans.
+    /// - Parameters:
+    ///   - testPlans: List of test plans to run.
+    ///   - configuration: Configuration to be used.
+    ///   - attachDebugger: A boolean controlling whether a debugger is attached to the process running the tests.
+    ///   - preActions: Actions to execute before running the tests.
+    ///   - postActions: Actions to execute after running the tests.
+    /// - Returns: A test action.
+    public static func testPlans(
+        _ testPlans: [FilePath],
+        configuration: ConfigurationName = .debug,
+        attachDebugger: Bool = true,
+        preActions: [ExecutionAction] = [],
+        postActions: [ExecutionAction] = []
+    ) -> Self {
+        let testPlans = testPlans.map { TestPlan(path: $0, testTargets: [], isDefault: $0 == testPlans.first) }
+
+        return Self(
+            testPlans: testPlans,
+            targets: [],
+            arguments: nil,
+            configuration: configuration,
+            attachDebugger: attachDebugger,
+            expandVariableFromTarget: nil,
+            preActions: preActions,
+            postActions: postActions,
+            options: .options(),
+            diagnosticsOptions: .options(
+                mainThreadCheckerEnabled: false,
+                performanceAntipatternCheckerEnabled: false
+            ),
+            skippedTests: nil
+        )
+    }
+}
+
+extension TestAction {
+    public var configurationName: String {
+        configuration.rawValue
+    }
+
+    public var coverage: Bool {
+        get { options.coverage }
+        set { options.coverage = newValue }
+    }
+
+    public var codeCoverageTargets: [TargetReference] {
+        get { options.codeCoverageTargets }
+        set { options.codeCoverageTargets = newValue }
+    }
+
+    public var language: String? {
+        get { options.language?.identifier }
+        set { options.language = newValue.map { SchemeLanguage(identifier: $0) }  }
+    }
+
+    public var region: String? {
+        get { options.region }
+        set { options.region = newValue }
+    }
+
+    public var preferredScreenCaptureFormat: ScreenCaptureFormat? {
+        get { options.preferredScreenCaptureFormat }
+        set { options.preferredScreenCaptureFormat = newValue }
+    }
+}

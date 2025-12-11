@@ -1,0 +1,79 @@
+import Foundation
+
+/// A custom Swift Package Manager configuration
+///
+///
+/// ```swift
+/// // swift-tools-version: 5.8
+/// import PackageDescription
+///
+/// #if GEKO
+///     import ProjectDescription
+///     import ProjectDescriptionHelpers
+///
+///     let packageSettings = PackageSettings(
+///         productTypes: [
+///             "Alamofire": .framework, // default is .staticFramework
+///         ]
+///     )
+/// #endif
+///
+/// let package = Package(
+///     name: "PackageName",
+///     dependencies: [
+///         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
+///     ]
+/// )
+/// ```
+public struct PackageSettings: Codable, Equatable {
+    /// The custom `Product` type to be used for SPM targets.
+    public var productTypes: [String: Product]
+
+    // The base settings to be used for targets generated from SwiftPackageManager
+    public var baseSettings: Settings
+
+    // Additional settings to be added to targets generated from SwiftPackageManager.
+    public var targetSettings: [String: Settings]
+
+    /// Custom project configurations to be used for projects generated from SwiftPackageManager.
+    public var projectOptions: [String: Project.Options]
+
+    /// Creates `PackageSettings` instance for custom Swift Package Manager configuration.
+    /// - Parameters:
+    ///     - productTypes: The custom `Product` types to be used for SPM targets.
+    ///     - baseSettings: Additional settings to be added to targets generated from SwiftPackageManager.
+    ///     - targetSettings: Additional settings to be added to targets generated from SwiftPackageManager.
+    ///     - projectOptions: Custom project configurations to be used for projects generated from SwiftPackageManager.
+    public init(
+        productTypes: [String: Product] = [:],
+        baseSettings: Settings = .settings(),
+        targetSettings: [String: Settings] = [:],
+        projectOptions: [String: Project.Options] = [:]
+    ) {
+        self.productTypes = productTypes
+        self.baseSettings = baseSettings
+        self.targetSettings = targetSettings
+        self.projectOptions = projectOptions
+        dumpIfNeeded(self)
+    }
+    
+    /// Creates `PackageSettings` instance for custom Swift Package Manager configuration.
+    /// - Parameters:
+    ///     - productTypes: The custom `Product` types to be used for SPM targets.
+    ///     - baseSettings: Additional settings to be added to targets generated from SwiftPackageManager.
+    ///     - targetSettings: Additional settings to be added to targets generated from SwiftPackageManager.
+    ///     - projectOptions: Custom project configurations to be used for projects generated from SwiftPackageManager.
+    @available(*, deprecated, renamed: "init(productTypes:baseSettings:targetSettings:projectOptions:)")
+    public init(
+        productTypes: [String: Product] = [:],
+        baseSettings: Settings = .settings(),
+        targetSettings: [String: SettingsDictionary],
+        projectOptions: [String: Project.Options] = [:]
+    ) {
+        self.productTypes = productTypes
+        self.baseSettings = baseSettings
+        self.targetSettings = targetSettings.mapValues { .settings(base: $0) }
+        self.projectOptions = projectOptions
+        dumpIfNeeded(self)
+    }
+}
