@@ -1,4 +1,4 @@
-ame: mr
+name: pr
 
 on:
   pull_request:
