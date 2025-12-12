@@ -1,0 +1,15 @@
+ame: mr
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: [self-hosted, volkodav]
+    steps:
+      - uses: actions/checkout@v6.0.1
+
+      - name: Build
+        run: echo Hello
+        # run: swift build
