@@ -3,16 +3,15 @@ import Foundation
 /// A plugin representation.
 ///
 /// Supported plugins include:
-/// - ProjectDescriptionHelpers
-///     - These are plugins designed to be usable by any other manifest excluding `Config` and `Plugin`.
-///     - The source files for these helpers must live under a ProjectDescriptionHelpers directory in the location where `Plugin`
-/// manifest lives.
-///
+/// - [ProjectDescriptionHelpers Plugin](projectdescriptionhelpers_plugin)
+/// - [Templates Plugin](templates_plugin)
+/// - [Executable Plugin](executable_plugin)
+/// - [Workspace Mapper Plugin](workspacemapper_plugin)
 public struct Plugin: Codable, Equatable {
     /// The name of the `Plugin`.
     public let name: String
     /// Plugin executables files.
-    public let executables: [PluginExecutable]
+    public let executables: [ExecutablePlugin]
     /// Plugin workspace mapper.
     public let workspaceMapper: WorkspaceMapperPlugin?
 
@@ -23,7 +22,7 @@ public struct Plugin: Codable, Equatable {
     ///     - workspaceMapper: Plugin workspace mapper.
     public init(
         name: String, 
-        executables: [PluginExecutable] = [],
+        executables: [ExecutablePlugin] = [],
         workspaceMapper: WorkspaceMapperPlugin? = nil
     ) {
         self.name = name
@@ -38,27 +37,35 @@ public struct PluginConfigManifest: Codable, Equatable {
     /// The name of the `Plugin`
     public let name: String
     /// Plugin executables files.
-    public let executables: [PluginExecutable]
+    public let executables: [ExecutablePlugin]
+    /// Plugin workspace mapper.
+    public let workspaceMapper: WorkspaceMapperPlugin?
     
-    public init(name: String, executables: [PluginExecutable] = []) {
+    public init(
+        name: String, 
+        executables: [ExecutablePlugin] = [],
+        workspaceMapper: WorkspaceMapperPlugin? = nil
+    ) {
         self.name = name
         self.executables = executables
+        self.workspaceMapper = workspaceMapper
     }
     
     /// Creates a new plugin in `Config`.
     /// - Parameters:
     ///     - name: The name of the plugin.
     ///     - executables: Plugin executables files.
-    public static func plugin(name: String, executables: [PluginExecutable] = []) -> Self {
-        Self(name: name, executables: executables)
+    ///     - workspaceMapper: Plugin workspace mapper.
+    public static func plugin(name: String, executables: [ExecutablePlugin] = [], workspaceMapper: WorkspaceMapperPlugin? = nil) -> Self {
+        Self(name: name, executables: executables, workspaceMapper: workspaceMapper)
     }
 }
 
 /// Defining the executable file.
-public struct PluginExecutable: Codable, Equatable {
+public struct ExecutablePlugin: Codable, Equatable {
     /// The name of the executable
     public let name: String
-    /// Path to executable in archive
+    /// (Optional) Custom path to folder with executable file inside zip archive. By default archive root.
     public let path: String?
     
     public init(name: String, path: String? = nil) {
