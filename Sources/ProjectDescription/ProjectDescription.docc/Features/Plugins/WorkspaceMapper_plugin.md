@@ -6,11 +6,11 @@
 
 ## Overview 
 
-This plugin allows you to access workspaces and projects during the project generation process and make changes to them.
+This plugin allows you to access [workspaces](workspace) and [projects](project) during the project generation process and make changes to them.
 
 ## Creating a plugin
 
-In the ``Plugin`` manifest, you must define a name in the `workspaceMapper` parameter, for example `WorkspaceMapperExample`.
+In the ``Plugin`` manifest, you must define a name in the [workspaceMapper](plugin/workspacemapper) parameter, for example `WorkspaceMapperExample`.
 
 **Plugin.swift**
 
@@ -19,13 +19,13 @@ import ProjectDescription
 
 let plugin = Plugin(
     name: "WorkspaceMapperExample",
-    workspaceMapper: .init(name: "WorkspaceMapperExample")
+    workspaceMapper: WorkspaceMapperPlugin(name: "WorkspaceMapperExample")
 )
 ```
 
 Next, in `Package.swift`, complete the following steps:
 - Create a dynamic library with a name matching the name specified in `Plugin.swift` (for example, `WorkspaceMapperExample`).
-- Add the `project-description` package to the dependencies.
+- Add the `ProjectDescription` package to the dependencies.
 - Add `ProjectDescription` to the dependencies in the library's target.
 
 **Package.swift**
@@ -47,13 +47,13 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/geko-tech/project-description", branch: "release/0.0.1")
+        .package(url: "https://github.com/geko-tech/ProjectDescription", branch: "release/0.0.1")
     ],
     targets: [
         .target(
             name: "WorkspaceMapperExample",
             dependencies: [
-                .product(name: "ProjectDescription", package: "project-description"),
+                .product(name: "ProjectDescription", package: "ProjectDescription"),
             ],
         )
     ]
@@ -97,6 +97,10 @@ let workspace = Workspace(
 )
 ```
 
+## Local development
+
+[Read here](building_geko_plugin_archive#Debug-plugin-archive).
+
 ## Typing plugin parameters
 
 To do this, create a `ProjectDescriptionHelpers` target in the plugin's `Package.swift`, explicitly specifying the path to `ProjectDescriptionHelpers` and adding `ProjectDescription` to the dependencies. Next, add the `ProjectDescriptionHelpers` target to the dependencies of the `WorkspaceMapperExample` target:
@@ -116,7 +120,7 @@ let package = Package(
         .target(
             name: "ProjectDescriptionHelpers",
             dependencies: [
-                .product(name: "ProjectDescription", package: "project-description"),
+                .product(name: "ProjectDescription", package: "ProjectDescription"),
             ],
             path: "ProjectDescriptionHelpers"
         )
@@ -134,7 +138,7 @@ The plugin folder structure will look like this:
 └── Sources/WorkspaceMapperExample
 ```
 
-Next, in `ProjectDescriptionHelpers/SomeModel.swift`, we need to create the models we want to type. For the top-level model, we need to specify the `WorkspaceMapperParameter` protocol, which already implements the `toJSONString` and `fromJSONString` helper methods:
+Next, in `ProjectDescriptionHelpers/SomeModel.swift`, we need to create the models we want to type. For the top-level model, we need to specify the ``WorkspaceMapperParameter`` protocol, which already implements the ``WorkspaceMapperParameter/toJSONString()`` and ``WorkspaceMapperParameter/fromJSONString(_:)`` helper methods:
 
 ```swift
 import ProjectDescription
@@ -173,7 +177,7 @@ public struct SomeStructItem: Codable {
 }
 ```
 
-From the plugin side, you can parse the model in the following way, using the `fromJSONString` method:
+From the plugin side, you can parse the model in the following way, using the ``WorkspaceMapperParameter/fromJSONString(_:)`` method:
 
 ```swift
 import ProjectDescriptionHelpers
@@ -181,7 +185,7 @@ import ProjectDescriptionHelpers
 let plugin = GekoPlugin(
     ...
     workspaceMapper: { (workspace, params, dependenciesGraph) in
-        let generateSharedTestTarget = try SomeStruct.fromJSONString(params[ProjectDescriptionHelpers.Constants.parameterName])
+        let someStruct = try SomeStruct.fromJSONString(params[ProjectDescriptionHelpers.Constants.parameterName])
         ...
     }
     ...
@@ -189,7 +193,7 @@ let plugin = GekoPlugin(
 ...
 ```
 
-Users of the plugin can pass the model to `Workspace.swift` in the following way, using the `toJSONString` method:
+Users of the plugin can pass the model to `Workspace.swift` in the following way, using the ``WorkspaceMapperParameter/toJSONString()`` method:
 
 ```swift
 import WorkspaceMapperExample
@@ -209,26 +213,6 @@ let workspace = Workspace(
                 ).toJSONString()
             ]
         )
-    ]
-)
-```
-
-## Local development
-
-For local development of this type of plugin:
-
-- Build the plugin with a debug configuration without archiving using the following command:
-
-```bash
-geko plugin archive --configuration debug --no-zip
-```
-
-- Include the `PluginBuild` folder in `Config.swift`:
-
-```swift
-let config = Config(
-    plugins: [
-        .local(path: "/path_to_plugin/PluginBuild")
     ]
 )
 ```

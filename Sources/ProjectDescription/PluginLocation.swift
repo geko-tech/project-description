@@ -8,7 +8,7 @@ public struct PluginLocation: Codable, Equatable {
     /// A `Path` to a directory containing a `Plugin` manifest.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// .local(path: "/User/local/bin")
     /// ```
     public static func local(path: FilePath, manifest: PluginConfigManifest? = nil) -> Self {
@@ -21,7 +21,7 @@ public struct PluginLocation: Codable, Equatable {
     /// it defaults to the GitHub release URL. Note that the URL should be publicly reachable.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// .git(url: "https://git/plugin.git", tag: "1.0.0", directory: "PluginDirectory")
     /// ```
     public static func git(url: String, tag: String, directory: String? = nil) -> Self {
@@ -32,7 +32,7 @@ public struct PluginLocation: Codable, Equatable {
     /// You can also specify a custom directory in case the plugin is not located at the root of the repository.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// .git(url: "https://git/plugin.git", sha: "d06b4b3d")
     /// ```
     public static func git(url: String, sha: String, directory: String? = nil) -> Self {
@@ -42,7 +42,7 @@ public struct PluginLocation: Codable, Equatable {
     /// Use remote archive with the plugin.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// .remote(url: "https://s3.example.com/bucket/GekoPlugin/1.0.2/GekoPlugin.macos.geko-plugin.zip"),
     ///
     /// .remote(
@@ -62,7 +62,7 @@ public struct PluginLocation: Codable, Equatable {
     /// Use remote plugin archive with different operating systems support.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// .remote(urls: [
     ///     .macos: "https://s3.example.com/bucket/GekoPlugin/1.0.2/GekoPlugin.macos.geko-plugin.zip"),
     ///     .linux("aarch64"): "https://s3.example.com/bucket/GekoPlugin/1.0.2/GekoPlugin.linux.aarch64.geko-plugin.zip"),
@@ -88,7 +88,7 @@ public struct PluginLocation: Codable, Equatable {
     /// Use remote archive with the plugin.
     ///
     /// Example:
-    /// ```
+    /// ```swift
     /// // https://s3.example.com/bucket/GekoPlugin/1.0.2/GekoPlugin.macos.geko-plugin.zip
     /// .remote(baseUrl: "https://s3.example.com/bucket", name: "GekoPlugin", version: "1.0.2"),
     /// ```

@@ -17,6 +17,8 @@ We provide four types of plugins:
 ## Topics
 
 - <doc:plugins_connection>
+- <doc:downloading_plugins>
+- <doc:building_geko_plugin_archive>
 - <doc:ProjectDescriptionHelpers_plugin>
 - <doc:Templates_plugin>
 - <doc:Executable_plugin>

@@ -29,6 +29,7 @@ TBD - add overview
 ### Features
  - <doc:generated_projects>
  - <doc:binary_cache>
+ - <doc:project_description_helpers>
  - <doc:plugins>
  - <doc:desktop_md>
  - <doc:linux_support>
