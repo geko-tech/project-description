@@ -30,7 +30,7 @@
 public struct Config: Codable, Equatable {
     /// Generation options.
     public var generationOptions: GenerationOptions
-    
+
     /// List of options to use when running `geko fetch`.
     public let installOptions: InstallOptions
 
@@ -61,7 +61,7 @@ public struct Config: Codable, Equatable {
 
     /// Scripts that are executed after generation phase. Executed in the same order as declared.
     public var postGenerateScripts: [Script]
-    
+
     /// if passed then will use bundler to work with Cocoapods
     public var cocoapodsUseBundler: Bool
 

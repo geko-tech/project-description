@@ -39,18 +39,18 @@ public struct Cache: Codable, Hashable {
                 "ScriptName: \(name), EnvKeys: \(envKeys.joined(separator: ","))"
             }
         }
-        
+
         public struct PlatformOptions: Codable, Hashable, CustomStringConvertible {
-            
+
             /// The target architecture for cache warmup, e.g. iOS:arm64, watchOS:arm6432 etc.
             public var arch: BinaryArchitecture
-            
+
             /// The version of the OS to be used when building the project during a caching warmup
             public var os: Version?
-            
+
             /// The device to be used when building the project during a caching warmup
             public var device: String?
-            
+
             public init(
                 arch: BinaryArchitecture,
                 os: Version? = nil,
@@ -60,7 +60,7 @@ public struct Cache: Codable, Hashable {
                 self.os = os
                 self.device = device
             }
-            
+
             public static func options(
                 arch: BinaryArchitecture,
                 os: Version? = nil,
@@ -72,7 +72,7 @@ public struct Cache: Codable, Hashable {
                     device: device
                 )
             }
-            
+
             public var description: String {
                 var params = ["Arch: \(arch)"]
                 if let os {
@@ -127,12 +127,9 @@ public struct Cache: Codable, Hashable {
 
         /// The configuration to be used when building the project during a caching warmup
         public var configuration: String
-        
+
         /// The platforms this target support and target platform options
         public var platforms: [Platform: PlatformOptions]
-
-        /// If true currently will cache modules that depend on XCTest
-        public var cachingTests: Bool
 
         /// Scripts to run before warming up the cache
         public var scripts: [RunScript]
@@ -144,14 +141,12 @@ public struct Cache: Codable, Hashable {
             name: String,
             configuration: String,
             platforms: [Platform: PlatformOptions],
-            cachingTests: Bool = true,
             scripts: [RunScript] = [],
             options: Options = .options()
         ) {
             self.name = name
             self.configuration = configuration
             self.platforms = platforms
-            self.cachingTests = cachingTests
             self.scripts = scripts
             self.options = options
         }
@@ -161,39 +156,7 @@ public struct Cache: Codable, Hashable {
         /// - Parameters:
         ///     - name: The unique name of the cache profile
         ///     - configuration: The configuration to be used when building the project during a caching warmup
-        ///     - device: The device to be used when building the project during a caching warmup
-        ///     - os: The version of the OS to be used when building the project during a caching warmup
-        /// - Returns: The `Cache.Profile` instance
-        @available(*, deprecated, message: "Use a different static initializer to define the profile model")
-        public static func profile(
-            name: String,
-            configuration: String,
-            device: String? = nil,
-            os: Version? = nil,
-            platforms: [Platform: BinaryArchitecture],
-            cachingTests: Bool = true,
-            scripts: [RunScript] = [],
-            options: Options = .options()
-        ) -> Profile {
-            Profile(
-                name: name,
-                configuration: configuration,
-                platforms: platforms.reduce(into: [Platform: PlatformOptions](), { acc, value in
-                    return acc[value.key] = PlatformOptions(arch: value.value, os: os, device: device)
-                }),
-                cachingTests: cachingTests,
-                scripts: scripts,
-                options: options
-            )
-        }
-        
-        /// Returns a `Cache.Profile` instance.
-        ///
-        /// - Parameters:
-        ///     - name: The unique name of the cache profile
-        ///     - configuration: The configuration to be used when building the project during a caching warmup
         ///     - platforms: Dictionary of platforms with platform options: e.g. arch, device, os
-        ///     - cachingTests: If true currently will cache modules that depend on XCTest // TODO: Remove this parameter always pass true
         ///     - scripts: Scripts to run before warming up the cache
         ///     - options: Additional options for cache profile
         /// - Returns: The `Cache.Profile` instance
@@ -201,7 +164,6 @@ public struct Cache: Codable, Hashable {
             name: String,
             configuration: String,
             platforms: [Platform: PlatformOptions],
-            cachingTests: Bool = true,
             scripts: [RunScript] = [],
             options: Options = .options()
         ) -> Profile {
@@ -209,7 +171,6 @@ public struct Cache: Codable, Hashable {
                 name: name,
                 configuration: configuration,
                 platforms: platforms,
-                cachingTests: cachingTests,
                 scripts: scripts,
                 options: options
             )

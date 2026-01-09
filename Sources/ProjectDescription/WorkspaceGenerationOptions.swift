@@ -71,11 +71,6 @@ extension Workspace {
             /// - parameters:
             ///     - first: map where key is path to podspec, value is path to generated project folder
             case manual([FilePath: FilePath])
-            
-            @available(*, deprecated, renamed: "automatic")
-            public static func enabled(_ paths: [FilePath]) -> Self {
-                return .automatic(paths)
-            }
         }
 
         /// Description for a shared test target
