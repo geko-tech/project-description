@@ -6,10 +6,10 @@ public struct CocoapodsLockfile: Codable, Equatable {
     public struct PodData: Codable, Equatable {
         // do no forget update comparePods(to:) when you add new fields!
         public var hash: String?
-        public var version: CocoapodsVersion
+        public var version: PackageVersion
         public var subspecs: [String]?
-        
-        public init(hash: String? = nil, version: CocoapodsVersion, subspecs: [String]? = nil) {
+
+        public init(hash: String? = nil, version: PackageVersion, subspecs: [String]? = nil) {
             self.hash = hash
             self.version = version
             self.subspecs = subspecs
@@ -28,7 +28,7 @@ public struct CocoapodsLockfile: Codable, Equatable {
         public var type: SourceType
         public var ref: String?
         public var pods: [String: PodData]
-        
+
         public init(type: SourceType, ref: String? = nil, pods: [String : PodData]) {
             self.type = type
             self.ref = ref
@@ -37,7 +37,7 @@ public struct CocoapodsLockfile: Codable, Equatable {
     }
 
     public var podsBySource: Lockfile
-    
+
     public init(podsBySource: Lockfile) {
         self.podsBySource = podsBySource
     }
