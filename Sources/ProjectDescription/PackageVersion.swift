@@ -1,16 +1,7 @@
 import Foundation
 
-extension Array {
-    fileprivate subscript(safe idx: Int) -> Element? {
-        if indices.contains(idx) {
-            return self[idx]
-        }
-        return nil
-    }
-}
-
 @frozen
-public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Equatable, Hashable {
+public struct PackageVersion: CustomStringConvertible, Codable, Comparable, Equatable, Hashable {
 
     public static let maxSegmentCount = 5
     public let major: Int
@@ -40,7 +31,12 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
             lowerSegment = ".\(patch).\(segment4).\(segment5)"
         }
 
-        let preReleaseStr = preRelease.map { "-\($0)" } ?? ""
+        let preReleaseStr: String = if let preRelease, !preRelease.isEmpty {
+            "-\(preRelease)"
+        } else {
+            ""
+        }
+
         let metadataStr = buildMetadata.map { "+\($0)" } ?? ""
 
         return "\(majorMinor)\(lowerSegment)\(preReleaseStr)\(metadataStr)"
@@ -56,10 +52,10 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
     }()
 
     public init(from str: CustomStringConvertible) {
-        var components = str.description.split(separator: "+")
+        var components = str.description.split(separator: "+", maxSplits: 1)
         buildMetadata = components.count > 1 ? String(components[1]) : nil
 
-        components = components[0].split(separator: "-")
+        components = components[0].split(separator: "-", maxSplits: 1)
         preRelease = components.count > 1 ? String(components[1]) : nil
 
         let segments = Self.versionSegments(String(components[0]))
@@ -71,7 +67,7 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
             fatalError("Invalid version: \(str). Major must be present and be an integer")
         }
 
-        assert(CocoapodsVersion.maxSegmentCount == 5)
+        assert(PackageVersion.maxSegmentCount == 5)
         self.major = majorInt
         // -1 means that this segment is pre-release and
         // its actual value stored in preReleaseSegments
@@ -115,7 +111,7 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
 
     // MARK: PubGrub.Version
 
-    public static let lowest: CocoapodsVersion = .init(0, 0, 0, 0, 1)
+    public static let lowest: PackageVersion = .init(0, 0, 0, 0, 1)
 
     public func bump() -> Self {
         .init(major, minor, patch, segment4, segment5 + 1)
@@ -132,7 +128,7 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
     // MARK: Equatable
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        assert(CocoapodsVersion.maxSegmentCount == 5)
+        assert(PackageVersion.maxSegmentCount == 5)
         return lhs.major == rhs.major
             && lhs.minor == rhs.minor
             && lhs.patch == rhs.patch
@@ -146,7 +142,7 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
     // MARK: Hashable
 
     public func hash(into hasher: inout Hasher) {
-        assert(CocoapodsVersion.maxSegmentCount == 5)
+        assert(PackageVersion.maxSegmentCount == 5)
         hasher.combine(major)
         hasher.combine(minor)
         hasher.combine(patch)
@@ -159,7 +155,7 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
     // MARK: Comparable
 
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        assert(CocoapodsVersion.maxSegmentCount == 5)
+        assert(PackageVersion.maxSegmentCount == 5)
         if lhs.major != rhs.major {
             return lhs.major < rhs.major
         }
@@ -175,12 +171,30 @@ public struct CocoapodsVersion: CustomStringConvertible, Codable, Comparable, Eq
         if lhs.segment5 != rhs.segment5 {
             return lhs.segment5 < rhs.segment5
         }
+        if lhs.preReleaseSegments != rhs.preReleaseSegments {
+            for (l, r) in zip(lhs.preReleaseSegments, rhs.preReleaseSegments) {
+                if l != r {
+                    return l < r
+                }
+            }
+            return lhs.preReleaseSegments.count < rhs.preReleaseSegments.count
+        }
+        if lhs.preRelease != rhs.preRelease {
+            guard let lPre = lhs.preRelease else { return false }
+            guard let rPre = rhs.preRelease else { return true }
+            return lPre < rPre
+        }
+        if lhs.buildMetadata != rhs.buildMetadata {
+            guard let lb = lhs.buildMetadata else { return false }
+            guard let rb = rhs.buildMetadata else { return true }
+            return lb < rb
+        }
         // lhs == rhs
         return false
     }
 }
 
-extension CocoapodsVersion {
+extension PackageVersion {
     public static func versionSegments(_ version: String) -> [String] {
         var result: [String] = []
         var currentSegment = ""
@@ -216,18 +230,27 @@ extension CocoapodsVersion {
     }
 }
 
-extension CocoapodsVersion {
+extension PackageVersion {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
     }
 }
 
-extension CocoapodsVersion {
+extension PackageVersion {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
 
         self.init(from: value)
+    }
+}
+
+extension Array {
+    fileprivate subscript(safe idx: Int) -> Element? {
+        if indices.contains(idx) {
+            return self[idx]
+        }
+        return nil
     }
 }
