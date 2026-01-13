@@ -56,24 +56,4 @@ public struct PackageSettings: Codable, Equatable {
         self.projectOptions = projectOptions
         dumpIfNeeded(self)
     }
-    
-    /// Creates `PackageSettings` instance for custom Swift Package Manager configuration.
-    /// - Parameters:
-    ///     - productTypes: The custom `Product` types to be used for SPM targets.
-    ///     - baseSettings: Additional settings to be added to targets generated from SwiftPackageManager.
-    ///     - targetSettings: Additional settings to be added to targets generated from SwiftPackageManager.
-    ///     - projectOptions: Custom project configurations to be used for projects generated from SwiftPackageManager.
-    @available(*, deprecated, renamed: "init(productTypes:baseSettings:targetSettings:projectOptions:)")
-    public init(
-        productTypes: [String: Product] = [:],
-        baseSettings: Settings = .settings(),
-        targetSettings: [String: SettingsDictionary],
-        projectOptions: [String: Project.Options] = [:]
-    ) {
-        self.productTypes = productTypes
-        self.baseSettings = baseSettings
-        self.targetSettings = targetSettings.mapValues { .settings(base: $0) }
-        self.projectOptions = projectOptions
-        dumpIfNeeded(self)
-    }
 }
