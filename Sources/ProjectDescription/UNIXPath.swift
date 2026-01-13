@@ -1,8 +1,5 @@
 import Foundation
 
-import protocol Foundation.CustomNSError
-import var Foundation.NSLocalizedDescriptionKey
-
 public typealias AbsolutePath = UNIXPath
 public typealias RelativePath = UNIXPath
 public typealias FilePath = UNIXPath
@@ -192,14 +189,6 @@ public struct UNIXPath: Sendable, Hashable {
     /// path components is never empty; even an empty path has a single path
     /// component: the `.` string.
     public var components: [String] {
-        // FIXME: We should investigate if it would be more efficient to instead
-        // return a path component iterator that does all its work lazily, moving
-        // from one path separator to the next on-demand.
-
-        // FIXME: This isn't particularly efficient; needs optimization, and
-        // in fact, it might well be best to return a custom iterator so we
-        // don't have to allocate everything up-front.  It would be backed by
-        // the path string and just return a slice at a time.
         let components = pathString.components(separatedBy: "/").filter({ !$0.isEmpty })
         //
         if pathString.hasPrefix("/") {
@@ -534,7 +523,6 @@ public struct UNIXPath: Sendable, Hashable {
     /// to be a valid path component (i.e., it cannot be empty, contain a path
     /// separator, or be a pseudo-path like '.' or '..').
     public func appending(components names: [String]) -> UNIXPath {
-        // FIXME: This doesn't seem a particularly efficient way to do this.
         return names.reduce(
             self,
             { path, name in

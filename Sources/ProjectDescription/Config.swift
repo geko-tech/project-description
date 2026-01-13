@@ -62,7 +62,7 @@ public struct Config: Codable, Equatable {
     /// Scripts that are executed after generation phase. Executed in the same order as declared.
     public var postGenerateScripts: [Script]
 
-    /// if passed then will use bundler to work with Cocoapods
+    /// Set to true when cocoapods is used through bundler
     public var cocoapodsUseBundler: Bool
 
     /// Creates a geko configuration.

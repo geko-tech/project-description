@@ -25,7 +25,7 @@ extension Config {
             )
         }
     }
-    
+
     public struct ShellScript: Codable, Equatable {
         /// The script to be executed with parameters.
         public let script: String

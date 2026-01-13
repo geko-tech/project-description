@@ -40,7 +40,7 @@ public struct PluginConfigManifest: Codable, Equatable {
     public let executables: [ExecutablePlugin]
     /// Plugin workspace mapper.
     public let workspaceMapper: WorkspaceMapperPlugin?
-    
+
     public init(
         name: String, 
         executables: [ExecutablePlugin] = [],
@@ -50,7 +50,7 @@ public struct PluginConfigManifest: Codable, Equatable {
         self.executables = executables
         self.workspaceMapper = workspaceMapper
     }
-    
+
     /// Creates a new plugin in `Config`.
     /// - Parameters:
     ///     - name: The name of the plugin.
@@ -67,7 +67,7 @@ public struct ExecutablePlugin: Codable, Equatable {
     public let name: String
     /// (Optional) Custom path to folder with executable file inside zip archive. By default archive root.
     public let path: String?
-    
+
     public init(name: String, path: String? = nil) {
         self.name = name
         self.path = path
@@ -78,7 +78,7 @@ public struct ExecutablePlugin: Codable, Equatable {
 public struct WorkspaceMapperPlugin: Codable, Equatable {
     /// The name of the mapper.
     public let name: String
-    
+
     public init(name: String) {
         self.name = name
     }
