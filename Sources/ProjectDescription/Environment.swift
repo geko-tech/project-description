@@ -6,15 +6,19 @@ public enum Env {
     private static let falseValues: Set<String> = ["0", "false", "FALSE", "no", "NO"]
 
     public static subscript(_ key: String) -> String? {
-        ProcessInfo.processInfo.environment[key]
+        return string(key)
     }
 
     public static subscript(bool key: String) -> Bool? {
-        bool(key)
+        return bool(key)
+    }
+
+    public static subscript(int key: String) -> Int? {
+        return int(key)
     }
 
     public static func string(_ key: String) -> String? {
-        Self[key]
+        return ProcessInfo.processInfo.environment[key]
     }
 
     public static func bool(_ key: String) -> Bool? {

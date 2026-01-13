@@ -5,7 +5,7 @@ public struct WorkspaceMapper: Codable, Equatable {
     public let name: String
     /// Parameters for workspace mapper.
     public let params: [String: String]
-    
+
     public init(
         name: String,
         params: [String: String] = [:]

@@ -5,19 +5,19 @@ public struct CommonSettings: Codable, Equatable, ExpressibleByDictionaryLiteral
     /// Settings in format "Setting name": "Settings Value"
     public let settings: [String: SettingValue]
     /// Regular expression which describes which targets settings need to be applied to.
-    public let targetMask: String?
-    public let exceptMask: String?
+    public let targetRegexp: String?
+    public let exceptRegexp: String?
     public let configurations: [String]
 
     public init(
         settings: [String: SettingValue],
         configurations: [String] = [],
-        targetMask: String? = nil,
-        exceptMask: String? = nil
+        targetRegexp: String? = nil,
+        exceptRegexp: String? = nil
     ) {
         self.settings = settings
-        self.targetMask = targetMask
-        self.exceptMask = exceptMask
+        self.targetRegexp = targetRegexp
+        self.exceptRegexp = exceptRegexp
         self.configurations = configurations
     }
 
@@ -65,61 +65,14 @@ extension Workspace {
             /// Generate projects for podspec automaticly
             /// - parameters:
             ///     - first: globs for searching podspecs
-            ///     - second: path to folder where shoud be generated projects
+            ///     - second: path to folder where projects shoud be generate
             case automatic([FilePath], FilePath? = nil)
-            /// Generate projects for podspec manualy
+            /// Generate projects for podspecs manualy
             /// - parameters:
-            ///     - first: map where key is path to podspec, value is path to generated project folder
+            ///     - first: map where key is a path to podspec, value is a path to generated project folder
             case manual([FilePath: FilePath])
         }
 
-        /// Description for a shared test target
-        public struct SharedTestTarget: Codable, Equatable {
-            public let testsPattern: String
-            public let except: String?
-            public let use: [String]
-            public let name: String
-            public let count: Int
-            public let needAppHost: Bool
-
-            public static func generate(name: String, testsPattern: String, except: String? = nil, needAppHost: Bool = false, count: Int = 1) -> SharedTestTarget {
-                return SharedTestTarget(
-                    testsPattern: testsPattern,
-                    except: except,
-                    use: [],
-                    name: name,
-                    count: count,
-                    needAppHost: needAppHost
-                )
-            }
-
-            public static func use(_ host: String, testsPattern: String, except: String? = nil) -> SharedTestTarget {
-                return .use([host], testsPattern: testsPattern, except: except)
-            }
-
-            public static func use(_ hosts: [String], testsPattern: String, except: String? = nil) -> SharedTestTarget {
-                return SharedTestTarget(
-                    testsPattern: testsPattern,
-                    except: except,
-                    use: hosts,
-                    name: "",
-                    count: 0,
-                    needAppHost: false
-                )
-            }
-        }
-
-        // Description for a shared test targets
-        public struct GenerateSharedTestTarget: Codable, Equatable {
-            public let installTo: String
-            public let targets: [SharedTestTarget]
-
-            public init(installTo: String, targets: [SharedTestTarget]) {
-                self.installTo = installTo
-                self.targets = targets
-            }
-        }
-        
         /// Contains options for local pods schemes autogeneration
         @frozen
         public enum AutogenerateLocalPodsSchemes: Codable, Equatable {
@@ -150,11 +103,9 @@ extension Workspace {
 
         /// Allows to integrate local podspecs as projects
         public var autogenerateLocalPodsProjects: AutogenerateLocalPodsProjects
-        
+
         /// Allow to autogenerate local podsschemes
         public var autogenerateLocalPodsSchemes: AutogenerateLocalPodsSchemes
-
-        public let generateSharedTestTarget: GenerateSharedTestTarget?
 
         public let commonSettings: [CommonSettings]
 
@@ -167,7 +118,6 @@ extension Workspace {
             renderMarkdownReadme: Bool,
             autogenerateLocalPodsProjects: AutogenerateLocalPodsProjects,
             autogenerateLocalPodsSchemes: AutogenerateLocalPodsSchemes,
-            generateSharedTestTarget: GenerateSharedTestTarget?,
             commonSettings: [CommonSettings],
             configurations: [String: BuildConfiguration.Variant]
         ) {
@@ -177,7 +127,6 @@ extension Workspace {
             self.renderMarkdownReadme = renderMarkdownReadme
             self.autogenerateLocalPodsProjects = autogenerateLocalPodsProjects
             self.autogenerateLocalPodsSchemes = autogenerateLocalPodsSchemes
-            self.generateSharedTestTarget = generateSharedTestTarget
             self.commonSettings = commonSettings
             self.configurations = configurations
         }
@@ -189,7 +138,6 @@ extension Workspace {
             renderMarkdownReadme: Bool = false,
             autogenerateLocalPodsProjects: AutogenerateLocalPodsProjects = .disabled,
             autogenerateLocalPodsSchemes: AutogenerateLocalPodsSchemes = .disabled,
-            generateSharedTestTarget: GenerateSharedTestTarget? = nil,
             commonSettings: [CommonSettings] = [],
             configurations: [String: BuildConfiguration.Variant] = ["Debug": .debug, "Release": .release]
         ) -> Self {
@@ -200,7 +148,6 @@ extension Workspace {
                 renderMarkdownReadme: renderMarkdownReadme,
                 autogenerateLocalPodsProjects: autogenerateLocalPodsProjects,
                 autogenerateLocalPodsSchemes: autogenerateLocalPodsSchemes,
-                generateSharedTestTarget: generateSharedTestTarget,
                 commonSettings: commonSettings,
                 configurations: configurations
             )

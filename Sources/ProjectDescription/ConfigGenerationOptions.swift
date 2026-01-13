@@ -37,10 +37,6 @@ extension Config {
         /// For example `Sources/**` will be converted, while `Sources/**/Mocks/**` will not.
         public let convertPathsInPodspecsToBuildableFolders: Bool
 
-        /// Whether to use old linkable dependencies search logic.
-        /// See documentation for more info.
-        public let useOldLinkableDependencies: Bool
-
         /// Options to add `-add_ast_path` with paths to swiftmodules of specified modules to `OTHER_LDFLAGS`
         public let addAstPathsToLinker: LinkerAstPaths
 
@@ -51,7 +47,6 @@ extension Config {
             staticSideEffectsWarningTargets: StaticSideEffectsWarningTargets = .all,
             enforceExplicitDependencies: Bool = false,
             convertPathsInPodspecsToBuildableFolders: Bool = false,
-            useOldLinkableDependencies: Bool = false,
             addAstPathsToLinker: LinkerAstPaths = .disabled
         ) -> Self {
             self.init(
@@ -61,7 +56,6 @@ extension Config {
                 staticSideEffectsWarningTargets: staticSideEffectsWarningTargets,
                 enforceExplicitDependencies: enforceExplicitDependencies,
                 convertPathsInPodspecsToBuildableFolders: convertPathsInPodspecsToBuildableFolders,
-                useOldLinkableDependencies: useOldLinkableDependencies,
                 addAstPathsToLinker: addAstPathsToLinker
             )
         }
