@@ -1,0 +1,40 @@
+name: Check
+on:
+  pull_request_target:
+    types: [edited, opened, reopened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr_title:
+    name: Pull Request
+    runs-on: [self-hosted, vovkodav]
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v6.0.1
+    - name: Conventional Commits
+      if: github.event.pull_request != null
+      run: |
+        echo "Started"
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null)
+        echo $LATEST_TAG
+        if [ -z "$LATEST_TAG" ]; then
+          echo "Latest tag not found" >&2; exit 1;
+        fi
+        LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+        if [ -n "$LATEST_VERSION" ]; then
+          LATEST_VERSION="${LATEST_VERSION}"
+        else
+          echo "Failed to extract version from tag: $LATEST_TAG" >&2; exit 1;
+        fi
+        export INPUT_TITLE="${{ github.event.pull_request.title }}"
+        export LATEST_VERSION=LATEST_VERSION
+        # chmod +x test.sh
+        # ./test.sh
+        # chmod +x title_validator.sh
+        # ./title_validator.sh
+        # chmod +x abi_validator.sh
+        # ./abi_validator.sh
