@@ -1,3 +1,3 @@
 ## Project Description 
 
-TBD
+Contains manifest and plugin public interface for Geko based projects.
