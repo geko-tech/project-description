@@ -23,3 +23,4 @@ We provide four types of plugins:
 - <doc:Templates_plugin>
 - <doc:Executable_plugin>
 - <doc:WorkspaceMapper_plugin>
+- <doc:OfficialPlugins>

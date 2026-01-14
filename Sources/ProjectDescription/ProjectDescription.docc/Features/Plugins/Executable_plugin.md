@@ -26,14 +26,14 @@ let plugin = Plugin(
 **Package.swift**
 
 ```swift
-// swift-tools-version:5.3
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "RemotePlugin",
-    platforms: [.macOS(.v11)],
+    platforms: [.macOS(.v14)],
     products: [
         .executable(
             name: "ExampleGekoExecutable",
@@ -42,13 +42,15 @@ let package = Package(
     ],
     dependencies: [],
     targets: [
-        .target(
+        .executableTarget(
             name: "ExampleTarget",
             dependencies: []
         ),
     ]
 )
 ```
+
+[Link to the source code of the plugin from the example above](https://github.com/geko-tech/GekoPlugins/tree/main/ExecutablePluginExample).
 
 ## Usage
 

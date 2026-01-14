@@ -26,7 +26,7 @@ To create this type of plugin, you need to create a `ProjectDescriptionHelpers` 
 import ProjectDescription
 
 let plugin = Plugin(
-    name: "ProjectTemplatesGekoPlugin"
+    name: "HelpersPluginExample"
 )
 ```
 
@@ -65,6 +65,8 @@ extension Project {
 }
 ```
 
+[Link to the source code of the plugin from the example above](https://github.com/geko-tech/GekoPlugins/tree/main/ProjectDescriptionHelpersPluginExample).
+
 ## Usage
 
 The code above can be reused in any project manifest except `Config.swift` and `Plugin.swift`:
@@ -72,7 +74,7 @@ The code above can be reused in any project manifest except `Config.swift` and `
 ```swift
 // Project.swift
 import ProjectDescription
-import ProjectTemplatesGekoPlugin
+import HelpersPluginExample
 
 let project = Project.featureFramework(name: "MyFeature")
 ```
