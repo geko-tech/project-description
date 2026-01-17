@@ -1,0 +1,2 @@
+echo $INPUT_TITLE
+echo $LATEST_TAG
