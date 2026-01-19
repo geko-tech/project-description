@@ -1,0 +1,115 @@
+name: release
+on:
+  workflow_dispatch:
+
+jobs:
+  draft_release:
+    name: Draft Release
+    runs-on: [self-hosted, vovkodav]
+    env:
+      GH_PAT: ${{ secrets.GH_PAT }}
+      GH_USER: ${{ secrets.GH_USER }}
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Fetch last tag
+        run: |
+          git config --global credential.helper '!f() { echo "username=${GH_USER}"; echo "password=${GH_PAT}"; }; f'
+          git fetch --tags
+
+          LATEST_TAG=$(git ls-remote --tags --sort=v:refname https://github.com/Vinogradov7511339/ProjectDescription | grep -oE '[0-9\\.]*$' | tail -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Latest tag not found" >&2; exit 1;
+          fi
+          echo $LATEST_TAG
+
+          LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          if [ -n "$LATEST_VERSION" ]; then
+            LATEST_VERSION="${LATEST_VERSION}"
+          else
+            echo "Failed to extract version from tag: $LATEST_TAG" >&2; exit 1;
+          fi
+
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+      - name: Calculate new version
+        run: |
+          LATEST_VERSION="${{ env.LATEST_VERSION }}"
+
+          ALL_MESSAGES=$(git log 0.0.1..HEAD --format=%B | grep -E "\[(patch|minor|major)\] (feat|fix|refactor): .*")
+          echo $ALL_MESSAGES
+          chmod +x ./incr_semver.sh
+
+          new_patch=""
+          if [[ "$ALL_MESSAGES" == *"[major]"* ]]; then
+          new_patch=$(./incr_semver.sh "$LATEST_VERSION" major)
+          elif [[ "$ALL_MESSAGES" == *"[minor]"* ]]; then
+          new_patch=$(./incr_semver.sh "$LATEST_VERSION" minor)
+          else
+          new_patch=$(./incr_semver.sh "$LATEST_VERSION" patch)
+          fi
+
+          echo "NEW_VERSION=$new_patch" >> $GITHUB_ENV
+          echo "CHANGELOG=$ALL_MESSAGES" >> $GITHUB_ENV
+      - name: Switch to release branch
+        run: |
+          NEW_VERSION="${{ env.NEW_VERSION }}"
+          branch_name="test_release/$NEW_VERSION"
+          if git branch -r | grep -q "origin/$branch_name"; then
+              echo "Remote branch $branch_name exists. Switching..."
+              git switch "$branch_name"
+          else
+              echo "Remote branch '$branch_name' does not exist. Checkout..."
+              git checkout -b "$branch_name"
+          fi
+      - name: Fullfill changelog
+        run: |
+          NEW_VERSION="${{ env.NEW_VERSION }}"
+          CHANGELOG="${{ env.CHANGELOG }}"
+          branch_name="test_release/$NEW_VERSION"
+          FILE="Changelog.md"
+          TEMP_FILE="temp.md"
+          NEW_CONTENT="## ProjectDescription $NEW_VERSION
+          $CHANGELOG
+          "
+          if grep -q "$NEW_CONTENT" "$FILE"; then
+            echo "The file '$FILE' contains new changes"
+          else
+            echo "$NEW_CONTENT" > "$TEMP_FILE"
+            cat "$FILE" >> "$TEMP_FILE"
+            mv "$TEMP_FILE" "$FILE"
+
+            git status
+            git commit . -m "Bump changelog"
+            git push origin "$branch_name"
+          fi
+      - name: Add tag
+        run: |
+          NEW_VERSION="${{ env.NEW_VERSION }}"
+          if git ls-remote --exit-code --tags origin "$NEW_VERSION"; then
+            echo "Tag $NEW_VERSION found."
+          else
+            echo "Tag $NEW_VERSION not found. Creating..."
+            git tag $NEW_VERSION
+            git push origin $NEW_VERSION
+          fi
+      - name: Create Draft Release
+        run: |
+          NEW_VERSION="${{ env.NEW_VERSION }}"
+          CHANGELOG="${{ env.CHANGELOG }}"
+          JSON_PAYLOAD=$(jq -n --arg NEW_VERSION "$NEW_VERSION" --arg CHANGELOG "$CHANGELOG" \
+            '{ "tag_name": $NEW_VERSION, "target_commitish": "main", "name": $NEW_VERSION, "body": $CHANGELOG, "draft": true, "prerelease": false, "generate_release_notes": false }')
+          echo "$JSON_PAYLOAD"
+
+          # curl -L \
+          # -X POST \
+          # -H "Accept: application/vnd.github+json" \
+          # -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+          # -H "X-GitHub-Api-Version: 2022-11-28" \
+          # "https://api.github.com/repos/Vinogradov7511339/ProjectDescription/releases" \
+          # -d "$JSON_PAYLOAD"
+
+          # chmod +x ./build_and_dump.sh
+          # tmp_dir=$(mktemp -d)
+          # current_abi_dump_path=$(./build_and_dump.sh $tmp_dir)

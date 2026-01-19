@@ -3,7 +3,7 @@ import Foundation
 /// An action that builds products.
 ///
 /// It's initialized with the `.buildAction` static method.
-public struct BuildAction: Equatable, Codable {
+public struct BuildKek: Equatable, Codable {
     /// A list of targets to build, which are defined in the project.
     public var targets: [TargetReference]
     /// A list of actions that are executed before starting the build process.
@@ -42,8 +42,8 @@ public struct BuildAction: Equatable, Codable {
         postActions: [ExecutionAction] = [],
         buildImplicitDependencies: Bool = true,
         runPostActionsOnFailure: Bool = false
-    ) -> BuildAction {
-        BuildAction(
+    ) -> BuildKek {
+        BuildKek(
             targets: targets,
             preActions: preActions,
             postActions: postActions,

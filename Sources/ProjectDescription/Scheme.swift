@@ -12,7 +12,7 @@ public struct Scheme: Equatable, Codable {
     /// When `true` the scheme doesn't show up in the dropdown scheme's list.
     public var hidden: Bool
     /// Action that builds the project targets.
-    public var buildAction: BuildAction?
+    public var buildAction: BuildKek?
     /// Action that runs the project tests.
     public var testAction: TestAction?
     /// Action that runs project built products.
@@ -39,7 +39,7 @@ public struct Scheme: Equatable, Codable {
         name: String,
         shared: Bool = true,
         hidden: Bool = false,
-        buildAction: BuildAction? = nil,
+        buildAction: BuildKek? = nil,
         testAction: TestAction? = nil,
         runAction: RunAction? = nil,
         archiveAction: ArchiveAction? = nil,
