@@ -46,7 +46,7 @@ jobs:
         run: |
           LATEST_VERSION="${{ env.LATEST_VERSION }}"
 
-          ALL_MESSAGES=$(git log 0.0.1..HEAD --format=%B | grep -E "\[(patch|minor|major)\] (feat|fix|refactor): .*")
+          ALL_MESSAGES=$(git log "$LATEST_VERSION"..HEAD --format=%B | grep -E "\[(patch|minor|major)\] (feat|fix|refactor): .*")
           echo $ALL_MESSAGES
           chmod +x ./scripts/helpers/incr_semver.sh
 
