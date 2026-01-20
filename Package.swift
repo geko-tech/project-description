@@ -17,9 +17,6 @@ let package = Package(
             targets: ["ProjectDescription"]
         )
     ],
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
-    ],
     targets: [
         .target(
             name: "ProjectDescription",
