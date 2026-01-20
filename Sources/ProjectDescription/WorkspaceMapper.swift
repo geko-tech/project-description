@@ -15,7 +15,7 @@ public struct WorkspaceMapper: Codable, Equatable {
     }
 }
 
-/// Helper protocol for serializing and deserializing [Workspace Mapper Plugin parameters](workspacemapper_plugin#Typing-plugin-parameters).
+/// Helper protocol for serializing and deserializing [Workspace Mapper Plugin parameters](https://geko-tech.github.io/geko/guides/features/plugins/workspacemapper_plugin#typing-plugin-parameters).
 public protocol WorkspaceMapperParameter: Codable {}
 
 public extension WorkspaceMapperParameter {

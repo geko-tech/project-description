@@ -3,10 +3,10 @@ import Foundation
 /// A plugin representation.
 ///
 /// Supported plugins include:
-/// - [ProjectDescriptionHelpers Plugin](projectdescriptionhelpers_plugin)
-/// - [Templates Plugin](templates_plugin)
-/// - [Executable Plugin](executable_plugin)
-/// - [Workspace Mapper Plugin](workspacemapper_plugin)
+/// - [ProjectDescriptionHelpers Plugin](https://geko-tech.github.io/geko/guides/features/plugins/projectdescriptionhelpers_plugin)
+/// - [Templates Plugin](https://geko-tech.github.io/geko/guides/features/plugins/templates_plugin)
+/// - [Executable Plugin](https://geko-tech.github.io/geko/guides/features/plugins/executable_plugin)
+/// - [Workspace Mapper Plugin](https://geko-tech.github.io/geko/guides/features/plugins/workspacemapper_plugin)
 public struct Plugin: Codable, Equatable {
     /// The name of the `Plugin`.
     public let name: String
