@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       release_exist:
-        description: 'Rerun existed release'
+        description: 'Rerun existing release'
         required: true
         default: 'false'
         type: choice
@@ -27,7 +27,8 @@ jobs:
       - name: Fetch last tag
         run: |
           git config --global credential.helper '!f() { echo "username=${GH_USER}"; echo "password=${GH_PAT}"; }; f'
-          git fetch --tags\
+          git fetch --tags
+
           LATEST_TAG=$(git describe --abbrev=0 --tags)
           if [ -z "$LATEST_TAG" ]; then
             echo "Latest tag not found" >&2; exit 1;
@@ -53,10 +54,13 @@ jobs:
           new_patch=""
           if [[ "$ALL_MESSAGES" == *"[major]"* ]]; then
           new_patch=$(./scripts/helpers/incr_semver.sh "$LATEST_VERSION" major)
+          echo "NEW_BUMP_TYPE=major" >> $GITHUB_ENV
           elif [[ "$ALL_MESSAGES" == *"[minor]"* ]]; then
           new_patch=$(./scripts/helpers/incr_semver.sh "$LATEST_VERSION" minor)
+          echo "NEW_BUMP_TYPE=minor" >> $GITHUB_ENV
           else
           new_patch=$(./scripts/helpers/incr_semver.sh "$LATEST_VERSION" patch)
+          echo "NEW_BUMP_TYPE=patch" >> $GITHUB_ENV
           fi
 
           if [ "$RELEASE_EXIST" = "true" ]; then
@@ -72,7 +76,7 @@ jobs:
       - name: Switch to release branch
         run: |
           NEW_VERSION="${{ env.NEW_VERSION }}"
-          branch_name="test_release/$NEW_VERSION"
+          branch_name="release/$NEW_VERSION"
           if git branch -r | grep -q "origin/$branch_name"; then
               echo "Remote branch $branch_name exists. Switching..."
               git switch "$branch_name"
@@ -84,7 +88,7 @@ jobs:
         run: |
           NEW_VERSION="${{ env.NEW_VERSION }}"
           CHANGELOG="${{ env.CHANGELOG }}"
-          branch_name="test_release/$NEW_VERSION"
+          branch_name="release/$NEW_VERSION"
           FILE="Changelog.md"
           TEMP_FILE="temp.md"
           NEW_CONTENT="## ProjectDescription $NEW_VERSION
@@ -113,9 +117,14 @@ jobs:
           fi
       - name: Build and dump
         run: |
-          chmod +x .scripts/helpers/build_and_dump.sh
+          LATEST_VERSION="${{ env.LATEST_VERSION }}"
+          NEW_BUMP_TYPE="${{ env.NEW_BUMP_TYPE }}"
+          chmod +x ./scripts/helpers/build_and_dump.sh
+          chmod +x ./scripts/helpers/abi_comparator.sh
           tmp_dir=$(mktemp -d)
-          current_abi_dump_path=$(.scripts/helpers/build_and_dump.sh $tmp_dir)
+          current_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $tmp_dir)
+          ./scripts/helpers/abi_comparator.sh $tmp_dir $LATEST_VERSION $current_abi_dump_path $NEW_BUMP_TYPE
+
           # zip current-abi.zip current_abi_dump_path
           echo "ABI_PATH=$current_abi_dump_path" >> $GITHUB_ENV
       - name: Create Release
@@ -138,3 +147,7 @@ jobs:
           asset_path: ${{ env.ABI_PATH }}
           asset_name: current-abi.json
           asset_content_type: application/json
+      - name: Create Pull Request
+        run: gh pr create --base main --head "release/${{ env.NEW_VERSION }}" --title "Release PR" --body "${{ env.NEW_VERSION }}" --reviewer geko-team
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

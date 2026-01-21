@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Function to increment a semantic version string
 # Usage: incr_semver <version_string> [major|minor|patch]
