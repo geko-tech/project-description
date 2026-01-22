@@ -93,7 +93,7 @@ jobs:
           NEW_CONTENT="## ProjectDescription $NEW_VERSION
           $CHANGELOG
           "
-          if grep -q "$NEW_CONTENT" "$FILE"; then
+          if grep -q "ProjectDescription $NEW_VERSION" "$FILE"; then
             echo "The file '$FILE' contains new changes"
           else
             echo "$NEW_CONTENT" > "$TEMP_FILE"
