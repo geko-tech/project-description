@@ -1,4 +1,7 @@
 name: release
+permissions:
+  actions: write
+  pull-requests: write
 on:
   workflow_dispatch:
     inputs:
