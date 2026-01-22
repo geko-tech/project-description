@@ -1,0 +1,58 @@
+name: Check
+on:
+  pull_request_target:
+    types: [edited, opened, reopened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_bump_type:
+    name: Validate
+    runs-on: macos-15
+    env:
+      GH_PAT: ${{ secrets.GH_PAT }}
+      GH_USER: ${{ secrets.GH_USER }}
+      INPUT_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - uses: actions/checkout@v6.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Validate Title
+        run: |
+          REGEX="^\[(patch|minor|major)\] (feat|fix|refactor): .+$"
+          if [[ ! $INPUT_TITLE =~ $REGEX ]]; then
+            echo "::error title=PR Title::Your pull request title does not follow the conventional commit format. Please use the format: [<bump type>] (<type>): <description>"
+            echo "::warning title=Available Types:feat,fix,refactor"
+            echo "::warning title=Example:[patch] refactor: Refactor mappers"
+            echo "::warning Your title $INPUT_TITLE"
+            exit 1
+          fi
+      - name: Check bump type
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --abbrev=0 --tags)
+          echo $LATEST_TAG
+          if [ -z "$LATEST_TAG" ]; then
+            echo "Latest tag not found" >&2; exit 1;
+          fi
+          LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          if [ -n "$LATEST_VERSION" ]; then
+            LATEST_VERSION="${LATEST_VERSION}"
+          else
+            echo "Failed to extract version from tag: $LATEST_TAG" >&2; exit 1;
+          fi
+          NEW_BUMP_TYPE=""
+          if [[ $INPUT_TITLE =~ \[(.*)\] ]]; then
+              NEW_BUMP_TYPE="${BASH_REMATCH[1]}"
+          else
+              echo "Bump type not found" >&2; exit 1;
+          fi
+          chmod +x ./scripts/helpers/build_and_dump.sh
+          chmod +x ./scripts/helpers/abi_comparator.sh
+          tmp_dir=$(mktemp -d)
+          current_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $tmp_dir)
+          ./scripts/helpers/abi_comparator.sh $tmp_dir $LATEST_VERSION $current_abi_dump_path $NEW_BUMP_TYPE
+          
