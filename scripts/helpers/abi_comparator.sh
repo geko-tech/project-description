@@ -10,7 +10,7 @@ log_info() { echo "ℹ️ $1"; }
 
 # Input
 
-ABI_URL="https://github.com/Vinogradov7511339/ProjectDescription/releases/download"
+ABI_URL="https://github.com/geko-tech/ProjectDescription/releases/download"
 PROJECT_DESCRIPTION_ABI_URL="${ABI_URL}"
 
 TMP_DIR=$1
