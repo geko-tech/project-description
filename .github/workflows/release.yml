@@ -1,8 +1,4 @@
 name: release
-permissions:
-  actions: write
-  pull-requests: write
-  contents: write
 on:
   workflow_dispatch:
     inputs:
@@ -19,18 +15,16 @@ jobs:
   draft_release:
     name: Draft Release
     runs-on: macos-15
+    permissions:
+      contents: write
     env:
-      GH_PAT: ${{ secrets.GH_PAT }}
-      GH_USER: ${{ secrets.GH_USER }}
       RELEASE_EXIST: ${{ github.event.inputs.release_exist }}
     steps:
       - uses: actions/checkout@v6.0.1
         with:
-          persist-credentials: false
           fetch-depth: 0
       - name: Fetch last tag
         run: |
-          git config --global credential.helper '!f() { echo "username=${GH_USER}"; echo "password=${GH_PAT}"; }; f'
           git fetch --tags
 
           LATEST_TAG=$(git describe --abbrev=0 --tags)
