@@ -146,6 +146,6 @@ jobs:
           asset_name: current-abi.json
           asset_content_type: application/json
       - name: Create Pull Request
-        run: gh pr create --base main --head "release/${{ env.NEW_VERSION }}" --title "Release PR" --body "${{ env.NEW_VERSION }}" --reviewer geko-tech/geko-team
+        run: gh pr create --base main --head "release/${{ env.NEW_VERSION }}" --title "Release PR" --body "${{ env.NEW_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
