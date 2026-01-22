@@ -17,6 +17,7 @@ jobs:
     runs-on: macos-15
     permissions:
       contents: write
+      pull-requests: write
     env:
       RELEASE_EXIST: ${{ github.event.inputs.release_exist }}
     steps:
