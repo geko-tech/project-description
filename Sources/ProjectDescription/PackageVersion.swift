@@ -52,39 +52,61 @@ public struct PackageVersion: CustomStringConvertible, Codable, Comparable, Equa
     }()
 
     public init(from str: CustomStringConvertible) {
+        guard let parsed = Self.parse(from: str) else {
+            fatalError("Invalid package version: \"\(str)\"")
+        }
+
+        self = parsed
+    }
+
+    public static func parse(from str: CustomStringConvertible) -> PackageVersion? {
         var components = str.description.split(separator: "+", maxSplits: 1)
-        buildMetadata = components.count > 1 ? String(components[1]) : nil
+
+        guard components.count > 0 else {
+            return nil
+        }
+
+        let buildMetadata = components.count > 1 ? String(components[1]) : nil
 
         components = components[0].split(separator: "-", maxSplits: 1)
-        preRelease = components.count > 1 ? String(components[1]) : nil
+        let preRelease = components.count > 1 ? String(components[1]) : nil
 
         let segments = Self.versionSegments(String(components[0]))
 
         guard
-            let major = segments.first,
-            let majorInt = Int(major)
+            let majorSegment = segments.first,
+            let majorInt = Int(majorSegment)
         else {
-            fatalError("Invalid version: \(str). Major must be present and be an integer")
+            return nil
         }
 
         assert(PackageVersion.maxSegmentCount == 5)
-        self.major = majorInt
+        let major = majorInt
         // -1 means that this segment is pre-release and
         // its actual value stored in preReleaseSegments
-        self.minor = Int(segments[safe: 1] ?? "0") ?? -1
-        self.patch = Int(segments[safe: 2] ?? "0") ?? -1
-        self.segment4 = Int(segments[safe: 3] ?? "0") ?? -1
-        self.segment5 = Int(segments[safe: 4] ?? "0") ?? -1
-        let noPreRelease =
-            self.major >= 0
-            && self.minor >= 0
-            && self.patch >= 0
-            && self.segment4 >= 0
-            && self.segment5 >= 0
+        let minor = Int(segments[safe: 1] ?? "0") ?? -1
+        let patch = Int(segments[safe: 2] ?? "0") ?? -1
+        let segment4 = Int(segments[safe: 3] ?? "0") ?? -1
+        let segment5 = Int(segments[safe: 4] ?? "0") ?? -1
+        let noPreRelease = major >= 0
+            && minor >= 0
+            && patch >= 0
+            && segment4 >= 0
+            && segment5 >= 0
         // https://www.rubydoc.info/github/CocoaPods/Core/Pod/Version
-        self.preReleaseSegments = noPreRelease ? [] : segments
+        let preReleaseSegments = noPreRelease ? [] : segments
 
-        value = str.description
+        return PackageVersion(
+            major,
+            minor,
+            patch,
+            segment4,
+            segment5,
+            preRelease: preRelease,
+            buildMetadata: buildMetadata,
+            preReleaseSegments: preReleaseSegments,
+            value: str.description
+        )
     }
 
     public init(
@@ -94,7 +116,9 @@ public struct PackageVersion: CustomStringConvertible, Codable, Comparable, Equa
         _ segment4: Int = 0,
         _ segment5: Int = 0,
         preRelease: String? = nil,
-        buildMetadata: String? = nil
+        buildMetadata: String? = nil,
+        preReleaseSegments: [String] = [],
+        value: String? = nil
     ) {
         self.major = major
         self.minor = minor
@@ -103,10 +127,15 @@ public struct PackageVersion: CustomStringConvertible, Codable, Comparable, Equa
         self.segment5 = segment5
         self.preRelease = preRelease
         self.buildMetadata = buildMetadata
+        self.preReleaseSegments = preReleaseSegments
         let preReleaseStr = preRelease.map { "-\($0)" } ?? ""
         let metadataStr = buildMetadata.map { "+\($0)" } ?? ""
-        value = "\(major).\(minor).\(patch).\(segment4).\(segment5)\(preReleaseStr)\(metadataStr)"
-        preReleaseSegments = []
+
+        if let value {
+            self.value = value
+        } else {
+            self.value = "\(major).\(minor).\(patch).\(segment4).\(segment5)\(preReleaseStr)\(metadataStr)"
+        }
     }
 
     // MARK: PubGrub.Version
