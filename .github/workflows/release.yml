@@ -14,7 +14,7 @@ on:
 jobs:
   draft_release:
     name: Draft Release
-    runs-on: macos-15
+    runs-on: macos-26
     permissions:
       contents: write
       pull-requests: write
@@ -46,7 +46,7 @@ jobs:
         run: |
           LATEST_VERSION="${{ env.LATEST_VERSION }}"
 
-          ALL_MESSAGES=$(git log "$LATEST_VERSION"..HEAD --format=%B | grep -E "\[(patch|minor|major)\] (feat|fix|refactor): .*")
+          ALL_MESSAGES=$(git log "$LATEST_VERSION"..HEAD --format=%B | grep -E "\[(patch|minor|major)\] .*" | sed "s/\[/• \[/g")
           echo $ALL_MESSAGES
           chmod +x ./scripts/helpers/incr_semver.sh
 
@@ -122,7 +122,15 @@ jobs:
           chmod +x ./scripts/helpers/abi_comparator.sh
           tmp_dir=$(mktemp -d)
           current_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $tmp_dir)
-          ./scripts/helpers/abi_comparator.sh $tmp_dir $LATEST_VERSION $current_abi_dump_path $NEW_BUMP_TYPE
+          old_abi_dump_path="$tmp_dir/old-abi.json"
+          url="https://github.com/geko-tech/ProjectDescription/releases/download/${LATEST_VERSION}/current-abi.json"
+          code=$(curl -L -s -w "%{http_code}" "$url" -o "$old_abi_dump_path")
+          if [ "$code" != "200" ]; then
+              echo "Failed to download API dumps. URL: $url (Status: $code)"
+              exit 1
+          fi
+          
+          ./scripts/helpers/abi_comparator.sh $tmp_dir $old_abi_dump_path $current_abi_dump_path $NEW_BUMP_TYPE
 
           # zip current-abi.zip current_abi_dump_path
           echo "ABI_PATH=$current_abi_dump_path" >> $GITHUB_ENV

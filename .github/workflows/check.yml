@@ -10,7 +10,10 @@ concurrency:
 jobs:
   check_bump_type:
     name: Validate
-    runs-on: macos-15
+    runs-on: macos-26
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       GH_PAT: ${{ secrets.GH_PAT }}
       GH_USER: ${{ secrets.GH_USER }}
@@ -32,27 +35,21 @@ jobs:
           fi
       - name: Check bump type
         run: |
-          git fetch --tags
-          LATEST_TAG=$(git describe --abbrev=0 --tags)
-          echo $LATEST_TAG
-          if [ -z "$LATEST_TAG" ]; then
-            echo "Latest tag not found" >&2; exit 1;
-          fi
-          LATEST_VERSION=$(echo "$LATEST_TAG" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          if [ -n "$LATEST_VERSION" ]; then
-            LATEST_VERSION="${LATEST_VERSION}"
-          else
-            echo "Failed to extract version from tag: $LATEST_TAG" >&2; exit 1;
-          fi
+          git fetch
           NEW_BUMP_TYPE=""
           if [[ $INPUT_TITLE =~ \[(.*)\] ]]; then
               NEW_BUMP_TYPE="${BASH_REMATCH[1]}"
           else
               echo "Bump type not found" >&2; exit 1;
           fi
+          base_branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          target_branch=${{ github.event.pull_request.base.ref }}
           chmod +x ./scripts/helpers/build_and_dump.sh
           chmod +x ./scripts/helpers/abi_comparator.sh
-          tmp_dir=$(mktemp -d)
-          current_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $tmp_dir)
-          ./scripts/helpers/abi_comparator.sh $tmp_dir $LATEST_VERSION $current_abi_dump_path $NEW_BUMP_TYPE
+          base_tmp_dir=$(mktemp -d)
+          base_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $base_tmp_dir)
+          git checkout -b target_branch
+          target_tmp_dir=$(mktemp -d)
+          target_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $target_tmp_dir)
+          ./scripts/helpers/abi_comparator.sh $base_tmp_dir $target_abi_dump_path $base_abi_dump_path $NEW_BUMP_TYPE
           
