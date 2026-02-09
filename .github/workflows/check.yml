@@ -42,6 +42,10 @@ jobs:
           else
               echo "Bump type not found" >&2; exit 1;
           fi
+          if [[ "$NEW_BUMP_TYPE" == "$none" ]]; then
+            echo "Bump type none, skip compare"
+            exit 0
+          fi
           base_branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           target_branch=${{ github.event.pull_request.base.ref }}
           chmod +x ./scripts/helpers/build_and_dump.sh
