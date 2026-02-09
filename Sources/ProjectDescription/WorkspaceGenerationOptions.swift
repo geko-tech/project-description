@@ -6,9 +6,17 @@ public struct CommonSettings: Codable, Equatable, ExpressibleByDictionaryLiteral
     public let settings: [String: SettingValue]
     /// Regular expression which describes which targets settings need to be applied to.
     public let targetRegexp: String?
+    /// Regular expression which describes which targets need to be excluded from applying settings.
     public let exceptRegexp: String?
+    /// List of configuration names to apply settings to.
     public let configurations: [String]
 
+    /// Creates a new `CommonSettings` instance.
+    /// - Parameters:
+    ///   - settings: settings that need to be applied
+    ///   - configurations: list of configuration names
+    ///   - targetRegexp: regular expression that will be mathched against target names
+    ///   - exceptRegexp: regular expression exceptions that will be mathched against target names
     public init(
         settings: [String: SettingValue],
         configurations: [String] = [],
@@ -107,8 +115,10 @@ extension Workspace {
         /// Allow to autogenerate local podsschemes
         public var autogenerateLocalPodsSchemes: AutogenerateLocalPodsSchemes
 
+        /// Applies settings across several projects
         public let commonSettings: [CommonSettings]
 
+        /// Creates configurations for all projects
         public var configurations: [String: BuildConfiguration.Variant]
 
         public init(
