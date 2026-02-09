@@ -10,11 +10,8 @@ log_info() { echo "ℹ️ $1"; }
 
 # Input
 
-ABI_URL="https://github.com/geko-tech/ProjectDescription/releases/download"
-PROJECT_DESCRIPTION_ABI_URL="${ABI_URL}"
-
 TMP_DIR=$1
-LATEST_VERSION=$2
+PREV_DUMP_PATH=$2
 CURRENT_ABI_DUMP_PATH=$3
 BUMP_TYPE=$4
 
@@ -73,20 +70,18 @@ bump_type_from_report() {
     fi
 }
 
-# Loading an old dump
-old_abi_dump_path="$TMP_DIR/old-abi.json"
-url="${PROJECT_DESCRIPTION_ABI_URL}/${LATEST_VERSION}/current-abi.json"
-
-log_info "Downloading old ABI dump..."
-code=$(curl -L -s -w "%{http_code}" "$url" -o "$old_abi_dump_path")
-if [ "$code" != "200" ]; then
-    log_error "Failed to download API dumps. URL: $url (Status: $code)"
+if [[ -f "$FILE_VAR" ]]; then
+    echo "$FILE_VAR exists and is a regular file."
+else
+    echo "$FILE_VAR is not a regular file or does not exist."
 fi
+
+# Loading an old dump
 
 # Prepare old dump (remove all "deprecated")
 log_info "Prepare old dump"
 old_prepared_path="$TMP_DIR/old-prepared.json"
-prepare_dump "$old_abi_dump_path" "$old_prepared_path"
+prepare_dump "$PREV_DUMP_PATH" "$old_prepared_path"
 log_success "Dump prepared"
 
 # ABI compare
