@@ -14,6 +14,7 @@ import Foundation
 /// )
 /// ```
 public struct Dependencies: Codable, Equatable {
+    public var registry: Registry?
     /// The description of dependencies that can be installed using Cocoapods
     public var cocoapods: CocoapodsDependencies?
 
@@ -22,8 +23,10 @@ public struct Dependencies: Codable, Equatable {
     ///   - cocoapods: The description of dependencies that can be installed using Cocoapods. Pass `nil` if you don't have
     /// dependencies from Cocoapods.
     public init(
+        registry: Registry? = nil,
         cocoapods: CocoapodsDependencies? = nil
     ) {
+        self.registry = registry
         self.cocoapods = cocoapods
         dumpIfNeeded(self)
     }
