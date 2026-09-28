@@ -6,6 +6,8 @@ import Foundation
 public struct BuildAction: Equatable, Codable {
     /// A list of targets to build, which are defined in the project.
     public var targets: [TargetReference]
+    /// A list of target filters. Field `target` will be populated with every target that suits one of passed filters.
+    public var targetFilters: [TargetFilter]
     /// A list of actions that are executed before starting the build process.
     public var preActions: [ExecutionAction]
     /// A list of actions that are executed after the build process.
@@ -17,12 +19,14 @@ public struct BuildAction: Equatable, Codable {
 
     public init(
         targets: [TargetReference] = [],
+        targetFilters: [TargetFilter] = [],
         preActions: [ExecutionAction] = [],
         postActions: [ExecutionAction] = [],
         buildImplicitDependencies: Bool = true,
         runPostActionsOnFailure: Bool = false
     ) {
         self.targets = targets
+        self.targetFilters = targetFilters
         self.preActions = preActions
         self.postActions = postActions
         self.buildImplicitDependencies = buildImplicitDependencies

@@ -11,6 +11,9 @@ public struct TestAction: Equatable, Codable {
     /// A list of testable targets, that are targets which are defined in the project with testable information.
     public var targets: [TestableTarget]
 
+    /// A list of target filters. Field `target` will be populated with every target that suits one of passed filters.
+    public var targetFilters: [TestableTargetFilter]
+
     /// Command line arguments passed on launch and environment variables.
     public var arguments: Arguments?
 
@@ -40,6 +43,7 @@ public struct TestAction: Equatable, Codable {
 
     public init(
         targets: [TestableTarget],
+        targetFilters: [TestableTargetFilter],
         arguments: Arguments?,
         configurationName: String,
         attachDebugger: Bool,
@@ -57,6 +61,7 @@ public struct TestAction: Equatable, Codable {
     ) {
         self.testPlans = testPlans
         self.targets = targets
+        self.targetFilters = targetFilters
         self.arguments = arguments
         self.configuration = .configuration(configurationName)
         self.attachDebugger = attachDebugger
@@ -78,6 +83,7 @@ public struct TestAction: Equatable, Codable {
     private init(
         testPlans: [TestPlan]?,
         targets: [TestableTarget],
+        targetFilters: [TestableTargetFilter],
         arguments: Arguments?,
         configuration: ConfigurationName,
         attachDebugger: Bool,
@@ -90,6 +96,7 @@ public struct TestAction: Equatable, Codable {
     ) {
         self.testPlans = testPlans
         self.targets = targets
+        self.targetFilters = targetFilters
         self.arguments = arguments
         self.configuration = configuration
         self.attachDebugger = attachDebugger
@@ -116,6 +123,7 @@ public struct TestAction: Equatable, Codable {
     /// - Returns: An initialized test action.
     public static func targets(
         _ targets: [TestableTarget],
+        targetFilters: [TestableTargetFilter] = [],
         arguments: Arguments? = nil,
         configuration: ConfigurationName = .debug,
         attachDebugger: Bool = true,
@@ -129,6 +137,7 @@ public struct TestAction: Equatable, Codable {
         Self(
             testPlans: nil,
             targets: targets,
+            targetFilters: targetFilters,
             arguments: arguments,
             configuration: configuration,
             attachDebugger: attachDebugger,
@@ -161,6 +170,7 @@ public struct TestAction: Equatable, Codable {
         return Self(
             testPlans: testPlans,
             targets: [],
+            targetFilters: [],
             arguments: nil,
             configuration: configuration,
             attachDebugger: attachDebugger,

@@ -27,3 +27,25 @@ public struct TestableTarget: Equatable, Hashable, Codable, ExpressibleByStringI
         self.init(target: .init(projectPath: nil, target: value))
     }
 }
+
+public struct TestableTargetFilter: Equatable, Hashable, Codable {
+    public var targetFilter: TargetFilter
+    /// Skip test target from TestAction.
+    public var isSkipped: Bool
+    /// Execute tests in parallel.
+    public var isParallelizable: Bool
+    /// Execute tests in random order.
+    public var isRandomExecutionOrdering: Bool
+
+    public init(
+        targetFilter: TargetFilter,
+        skipped: Bool = false,
+        parallelizable: Bool = false,
+        randomExecutionOrdering: Bool = false
+    ) {
+        self.targetFilter = targetFilter
+        isSkipped = skipped
+        isParallelizable = parallelizable
+        isRandomExecutionOrdering = randomExecutionOrdering
+    }
+}
