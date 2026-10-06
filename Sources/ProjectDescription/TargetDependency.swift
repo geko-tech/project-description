@@ -85,7 +85,19 @@ public enum TargetDependency: Codable, Hashable {
     ///   - condition: condition under which to use this dependency, `nil` if this should always be used
     case xcframework(path: FilePath, status: LinkingStatus = .required, condition: PlatformCondition? = nil)
 
+    /// Dependency on a precompiled bundle
+    ///
+    /// - Parameters:
+    ///   - path: Relative path to the bundle
+    ///   - condition: condition under which to use this dependnecy, `nil` if this should always be used
     case bundle(path: FilePath, condition: PlatformCondition? = nil)
+
+    /// Dependency on a precompiled macro executable
+    ///
+    /// - Parameters:
+    ///   - path: Relative path to the macro executable
+    ///   - condition: condition under which to use this dependnecy, `nil` if this should always be used
+    case macro(path: FilePath, condition: PlatformCondition? = nil)
 
     /// Dependency on XCTest.
     case xctest
@@ -135,6 +147,8 @@ public enum TargetDependency: Codable, Hashable {
             return "xcframework"
         case .bundle:
             return "bundle"
+        case .macro:
+            return "macro"
         case .xctest:
             return "xctest"
         case .external:
