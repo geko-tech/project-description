@@ -8,22 +8,34 @@ import Foundation
 /// import ProjectDescription
 ///
 /// let dependencies = Dependencies(
-///     cocoapods: [
-///         .cdn(name: "Alamofire", requirement: .exact("5.0.0"), source: "https://cdn.cocoapods.org/")
-///     ]
+///     registry: .init(
+///         registries: ["https://geko-registry.company.com"],
+///         dependencies: [
+///             .remote(name: "Alamofire", requirement: .exact("1.0.0")),
+///             .local(path: .relativeToRoot("../LocalProject/.geko/Registry/LocalPackage.json"))
+///         ]
+///     ),
+///     cocoapods: .init(
+///         dependencies: [
+///             .cdn(name: "Alamofire", requirement: .exact("5.0.0"), source: "https://cdn.cocoapods.org/")
+///         ]
+///     )
 /// )
 /// ```
 public struct Dependencies: Codable, Equatable {
-    public var registry: Registry?
+    /// The description of dependencies that can be installed using Geko registry
+    public var registry: RegistryDependencies?
     /// The description of dependencies that can be installed using Cocoapods
     public var cocoapods: CocoapodsDependencies?
 
     /// Creates a new `Dependencies` manifest instance.
     /// - Parameters:
+    ///   - registry: The description of dependencies that can be installed using Geko. Pass `nil` if you don't have
+    /// dependencies from Geko registry.
     ///   - cocoapods: The description of dependencies that can be installed using Cocoapods. Pass `nil` if you don't have
     /// dependencies from Cocoapods.
     public init(
-        registry: Registry? = nil,
+        registry: RegistryDependencies? = nil,
         cocoapods: CocoapodsDependencies? = nil
     ) {
         self.registry = registry
