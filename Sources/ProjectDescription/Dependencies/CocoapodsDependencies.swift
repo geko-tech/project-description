@@ -72,7 +72,7 @@ extension CocoapodsDependencies {
         /// Dependency from CDN repository.
         /// - Parameters:
         ///   - name: Name of the pod
-        ///   - requirement: Version requirment
+        ///   - requirement: Version requirement
         ///   - source: Repo name. If `nil`, then searches the repositories in the order specified in `repos`.
         case cdn(name: String, requirement: Requirement, source: String? = nil)
         /// Dependency from Git repository.
