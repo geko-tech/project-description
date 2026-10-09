@@ -162,17 +162,54 @@ public struct TestAction: Equatable, Codable {
     ///   - preActions: Actions to execute before running the tests.
     ///   - postActions: Actions to execute after running the tests.
     /// - Returns: A test action.
+    @available(*, deprecated)
     public static func testPlans(
-        _ testPlans: [TestActionTestPlan],
+        _ testPlans: [FilePath],
         configuration: ConfigurationName = .debug,
         attachDebugger: Bool = true,
         preActions: [ExecutionAction] = [],
         postActions: [ExecutionAction] = []
     ) -> Self {
-        let testPlans: [TestPlan] = testPlans.enumerated().map { (index, testPlan) in
+        let testPlans = testPlans.map { TestPlan(path: $0, testTargets: [], isDefault: $0 == testPlans.first) }
+
+        return Self(
+            testPlans: testPlans,
+            targets: [],
+            targetSelection: [],
+            arguments: nil,
+            configuration: configuration,
+            attachDebugger: attachDebugger,
+            expandVariableFromTarget: nil,
+            preActions: preActions,
+            postActions: postActions,
+            options: .options(),
+            diagnosticsOptions: .options(
+                mainThreadCheckerEnabled: false,
+                performanceAntipatternCheckerEnabled: false
+            ),
+            skippedTests: nil
+        )
+    }
+
+    /// Returns a test action from a list of test plans.
+    /// - Parameters:
+    ///   - testPlans: List of test plans to run.
+    ///   - configuration: Configuration to be used.
+    ///   - attachDebugger: A boolean controlling whether a debugger is attached to the process running the tests.
+    ///   - preActions: Actions to execute before running the tests.
+    ///   - postActions: Actions to execute after running the tests.
+    /// - Returns: A test action.
+    public static func testPlans(
+        list: [TestActionTestPlan],
+        configuration: ConfigurationName = .debug,
+        attachDebugger: Bool = true,
+        preActions: [ExecutionAction] = [],
+        postActions: [ExecutionAction] = []
+    ) -> Self {
+        let testPlans: [TestPlan] = list.map { testPlan in
             switch testPlan {
             case let .file(path):
-                .file(name: path.basenameWithoutExt, path: path, testTargets: [], isDefault: index == 0)
+                .file(path: path)
             case let .generated(name, directory, configurations, defaultOptions, testTargets, targetSelection, missingTargetPolicy):
                 .generated(
                     name: name,
@@ -181,7 +218,6 @@ public struct TestAction: Equatable, Codable {
                     defaultOptions: defaultOptions,
                     testTargets: testTargets,
                     targetSelection: targetSelection,
-                    isDefault: index == 0,
                     missingTargetPolicy: missingTargetPolicy
                 )
             }

@@ -7,18 +7,7 @@ import Foundation
 @frozen
 public enum TestPlan: Hashable, Codable {
     /// Reference an existing `.xctestplan` file on disk.
-    ///
-    /// - Parameters:
-    ///   - name: Name of the test plan.
-    ///   - path: Path to the existing `.xctestplan` file.
-    ///   - testTargets: Testable targets the plan runs.
-    ///   - isDefault: Whether this is the default plan.
-    case file(
-        name: String,
-        path: FilePath,
-        testTargets: [TestableTarget],
-        isDefault: Bool,
-    )
+    case file(FileTestPlan)
 
     /// Describe a test plan that Geko generates during generation.
     case generated(GeneratedTestPlan)
@@ -26,18 +15,18 @@ public enum TestPlan: Hashable, Codable {
     /// The name of the test plan.
     public var name: String {
         switch self {
-        case let .file(name, _, _, _):
-            name
-        case let .generated(plan):
-            plan.name
+        case let .file(fileTestPlan):
+            fileTestPlan.name
+        case let .generated(generatedTestPlan):
+            generatedTestPlan.name
         }
     }
 
     /// The path of the test plan.
     public var path: FilePath {
         switch self {
-        case let .file(_, path, _, _):
-            path
+        case let .file(fileTestPlan):
+            fileTestPlan.path
         case let .generated(plan):
             plan.path
         }
@@ -46,20 +35,20 @@ public enum TestPlan: Hashable, Codable {
     /// The testable targets the test plan runs.
     public var testTargets: [TestableTarget] {
         switch self {
-        case let .file(_, _, testTargets, _):
-            testTargets
-        case let .generated(plan):
-            plan.testTargets.map { $0.target }
+        case let .file(fileTestPlan):
+            fileTestPlan.testTargets
+        case let .generated(generatedTestPlan):
+            generatedTestPlan.testTargets.map { $0.target }
         }
     }
 
     /// Whether this is the default test plan.
     public var isDefault: Bool {
         switch self {
-        case let .file(_, _, _, isDefault):
-            isDefault
-        case let .generated(plan):
-            plan.isDefault
+        case let .file(fileTestPlan):
+            fileTestPlan.isDefault
+        case let .generated(generatedTestPlan):
+            generatedTestPlan.isDefault
         }
     }
 
@@ -74,10 +63,7 @@ public enum TestPlan: Hashable, Codable {
     @available(*, deprecated)
     public init(path: FilePath, testTargets: [TestableTarget], isDefault: Bool) {
         self = .file(
-            name: path.basenameWithoutExt,
-            path: path,
-            testTargets: testTargets,
-            isDefault: isDefault
+            FileTestPlan(path: path)
         )
     }
 
@@ -85,18 +71,9 @@ public enum TestPlan: Hashable, Codable {
     ///
     /// - Parameters:
     ///   - path: Path to the existing `.xctestplan` file.
-    ///   - testTargets: Testable targets the plan runs.
-    ///   - isDefault: Whether this is the default plan.
-    public static func file(
-        path: FilePath,
-        testTargets: [TestableTarget],
-        isDefault: Bool
-    ) -> Self {
+    public static func file(path: FilePath) -> Self {
         .file(
-            name: path.basenameWithoutExt,
-            path: path,
-            testTargets: testTargets,
-            isDefault: isDefault
+            FileTestPlan(path: path)
         )
     }
 
@@ -109,7 +86,6 @@ public enum TestPlan: Hashable, Codable {
     ///   - defaultOptions: Default options applied to the generated test plan.
     ///   - testTargets: Explicit test targets to include in the generated test plan.
     ///   - targetSelection: Scopes that resolve which test targets to include in the generated test plan.
-    ///   - isDefault: Whether this is the default plan.
     ///   - missingTargetPolicy: Policy applied when a target referenced by the generated test plan is missing.
     public static func generated(
         name: String,
@@ -118,7 +94,6 @@ public enum TestPlan: Hashable, Codable {
         defaultOptions: GeneratedTestPlan.Options? = nil,
         testTargets: [GeneratedTestPlanTestableTarget] = [],
         targetSelection: [TestableTargetSelectionScope] = [],
-        isDefault: Bool = false,
         missingTargetPolicy: GeneratedTestPlan.MissingTargetPolicy = .skipTestPlan()
     ) -> Self {
         .generated(
@@ -129,7 +104,6 @@ public enum TestPlan: Hashable, Codable {
                 defaultOptions: defaultOptions,
                 testTargets: testTargets,
                 targetSelection: targetSelection,
-                isDefault: isDefault,
                 missingTargetPolicy: missingTargetPolicy
             )
         )

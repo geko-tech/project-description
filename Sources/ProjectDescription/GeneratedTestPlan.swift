@@ -180,6 +180,17 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
             case none
         }
 
+        /// Code coverage
+        @frozen
+        public enum Coverage: Codable, Hashable, Sendable {
+            /// Off
+            case disabled
+            /// On (default)
+            case all
+            /// List of targets with code coverage enabled
+            case selected([TargetReference])
+        }
+
         /// Address Sanitizer
         public struct AddressSanitizer: Codable, Hashable, Sendable {
             public let detectStackUseAfterReturn: Bool?
@@ -249,7 +260,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         /// Environment Variables
         public let environmentVariableEntries: [VariableEntity]?
         /// Target for Variable Expansion
-        public let targetForVariableExpansion: String?
+        public let targetForVariableExpansion: TargetReference?
         /// Application Language
         public let language: String?
         /// Application Region
@@ -283,7 +294,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         /// Relaunch Tests for Each Repetition
         public let repeatInNewRunnerProcess: Bool?
         /// Code Coverage
-        public let codeCoverage: Bool?
+        public let codeCoverage: Coverage?
         /// Address Sanitizer
         public let addressSanitizer: AddressSanitizer?
         /// Thread Sanitizer
@@ -310,7 +321,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         public init(
             commandLineArgumentEntries: [CommandLineArgumentEntry]?,
             environmentVariableEntries: [VariableEntity]?,
-            targetForVariableExpansion: String?,
+            targetForVariableExpansion: TargetReference?,
             language: String?,
             region: String?,
             locationScenario: LocationScenario?,
@@ -327,7 +338,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
             testRepetitionMode: TestRepetitionMode?,
             maximumTestRepetitions: Int?,
             repeatInNewRunnerProcess: Bool?,
-            codeCoverage: Bool?,
+            codeCoverage: Coverage?,
             addressSanitizer: AddressSanitizer?,
             threadSanitizerEnabled: Bool?,
             undefinedBehaviorSanitizerEnabled: Bool?,
@@ -376,7 +387,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         public static func options(
             commandLineArgumentEntries: [CommandLineArgumentEntry]? = nil,
             environmentVariableEntries: [VariableEntity]? = nil,
-            targetForVariableExpansion: String? = nil,
+            targetForVariableExpansion: TargetReference? = nil,
             language: String? = nil,
             region: String? = nil,
             locationScenario: LocationScenario? = nil,
@@ -393,7 +404,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
             testRepetitionMode: TestRepetitionMode? = nil,
             maximumTestRepetitions: Int? = nil,
             repeatInNewRunnerProcess: Bool? = nil,
-            codeCoverage: Bool? = nil,
+            codeCoverage: Coverage? = nil,
             addressSanitizer: AddressSanitizer? = nil,
             threadSanitizerEnabled: Bool? = nil,
             undefinedBehaviorSanitizerEnabled: Bool? = nil,
@@ -501,12 +512,17 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
     public var testTargets: [GeneratedTestPlanTestableTarget]
     /// Scopes that resolve which test targets to include in the generated test plan.
     public var targetSelection: [TestableTargetSelectionScope]
-    /// Whether this test plan is the default plan.
-    public var isDefault: Bool
     /// Policy for handling missing targets.
     public var missingTargetPolicy: MissingTargetPolicy
+
+    // Internal
+
     /// The path where the generated test plan is written.
     public var path: FilePath
+    /// Whether this test plan is the default plan.
+    public var isDefault: Bool
+
+    // MARK: - Init
 
     public init(
         name: String,
@@ -515,7 +531,6 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         defaultOptions: Options?,
         testTargets: [GeneratedTestPlanTestableTarget],
         targetSelection: [TestableTargetSelectionScope],
-        isDefault: Bool,
         missingTargetPolicy: MissingTargetPolicy
     ) {
         self.name = name.split(separator: ".").first.map(String.init) ?? name
@@ -524,10 +539,10 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         self.defaultOptions = defaultOptions
         self.testTargets = testTargets
         self.targetSelection = targetSelection
-        self.isDefault = isDefault
         self.missingTargetPolicy = missingTargetPolicy
         
         // Internal
         self.path = "/"
+        self.isDefault = false
     }
 }
