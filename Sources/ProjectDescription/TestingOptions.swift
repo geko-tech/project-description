@@ -10,4 +10,6 @@ public struct TestingOptions: OptionSet, Codable, Equatable, Hashable {
     public static let parallelizable = TestingOptions(rawValue: 1 << 0)
     /// Execute tests in random order
     public static let randomExecutionOrdering = TestingOptions(rawValue: 1 << 1)
+    /// Enable code coverage
+    public static let coverage = TestingOptions(rawValue: 1 << 2)
 }

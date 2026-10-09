@@ -11,6 +11,12 @@ public struct TestAction: Equatable, Codable {
     /// A list of testable targets, that are targets which are defined in the project with testable information.
     public var targets: [TestableTarget]
 
+    /// A list of target selection scopes that determine which test targets to test.
+    ///
+    /// Each scope describes a group of test targets (e.g. all targets or a filtered subset) that
+    /// should be resolved into the `targets` list during generation.
+    public var targetSelection: [TestableTargetSelectionScope]
+
     /// Command line arguments passed on launch and environment variables.
     public var arguments: Arguments?
 
@@ -40,6 +46,7 @@ public struct TestAction: Equatable, Codable {
 
     public init(
         targets: [TestableTarget],
+        targetSelection: [TestableTargetSelectionScope] = [],
         arguments: Arguments?,
         configurationName: String,
         attachDebugger: Bool,
@@ -57,6 +64,7 @@ public struct TestAction: Equatable, Codable {
     ) {
         self.testPlans = testPlans
         self.targets = targets
+        self.targetSelection = targetSelection
         self.arguments = arguments
         self.configuration = .configuration(configurationName)
         self.attachDebugger = attachDebugger
@@ -78,6 +86,7 @@ public struct TestAction: Equatable, Codable {
     private init(
         testPlans: [TestPlan]?,
         targets: [TestableTarget],
+        targetSelection: [TestableTargetSelectionScope],
         arguments: Arguments?,
         configuration: ConfigurationName,
         attachDebugger: Bool,
@@ -90,6 +99,7 @@ public struct TestAction: Equatable, Codable {
     ) {
         self.testPlans = testPlans
         self.targets = targets
+        self.targetSelection = targetSelection
         self.arguments = arguments
         self.configuration = configuration
         self.attachDebugger = attachDebugger
@@ -104,6 +114,7 @@ public struct TestAction: Equatable, Codable {
     /// Returns a test action from a list of targets to be tested.
     /// - Parameters:
     ///   - targets: List of targets to be tested.
+    ///   - targetSelection: List of target selection scopes that determine which test targets to test.
     ///   - arguments: Arguments passed when running the tests.
     ///   - configuration: Configuration to be used.
     ///   - attachDebugger: A boolean controlling whether a debugger is attached to the process running the tests.
@@ -116,6 +127,7 @@ public struct TestAction: Equatable, Codable {
     /// - Returns: An initialized test action.
     public static func targets(
         _ targets: [TestableTarget],
+        targetSelection: [TestableTargetSelectionScope] = [],
         arguments: Arguments? = nil,
         configuration: ConfigurationName = .debug,
         attachDebugger: Bool = true,
@@ -129,6 +141,7 @@ public struct TestAction: Equatable, Codable {
         Self(
             testPlans: nil,
             targets: targets,
+            targetSelection: targetSelection,
             arguments: arguments,
             configuration: configuration,
             attachDebugger: attachDebugger,
@@ -149,6 +162,7 @@ public struct TestAction: Equatable, Codable {
     ///   - preActions: Actions to execute before running the tests.
     ///   - postActions: Actions to execute after running the tests.
     /// - Returns: A test action.
+    @available(*, deprecated)
     public static func testPlans(
         _ testPlans: [FilePath],
         configuration: ConfigurationName = .debug,
@@ -161,6 +175,58 @@ public struct TestAction: Equatable, Codable {
         return Self(
             testPlans: testPlans,
             targets: [],
+            targetSelection: [],
+            arguments: nil,
+            configuration: configuration,
+            attachDebugger: attachDebugger,
+            expandVariableFromTarget: nil,
+            preActions: preActions,
+            postActions: postActions,
+            options: .options(),
+            diagnosticsOptions: .options(
+                mainThreadCheckerEnabled: false,
+                performanceAntipatternCheckerEnabled: false
+            ),
+            skippedTests: nil
+        )
+    }
+
+    /// Returns a test action from a list of test plans.
+    /// - Parameters:
+    ///   - testPlans: List of test plans to run.
+    ///   - configuration: Configuration to be used.
+    ///   - attachDebugger: A boolean controlling whether a debugger is attached to the process running the tests.
+    ///   - preActions: Actions to execute before running the tests.
+    ///   - postActions: Actions to execute after running the tests.
+    /// - Returns: A test action.
+    public static func testPlans(
+        list: [TestActionTestPlan],
+        configuration: ConfigurationName = .debug,
+        attachDebugger: Bool = true,
+        preActions: [ExecutionAction] = [],
+        postActions: [ExecutionAction] = []
+    ) -> Self {
+        let testPlans: [TestPlan] = list.map { testPlan in
+            switch testPlan {
+            case let .file(path):
+                .file(path: path)
+            case let .generated(name, directory, configurations, defaultOptions, testTargets, targetSelection, missingTargetPolicy):
+                .generated(
+                    name: name,
+                    directory: directory,
+                    configurations: configurations,
+                    defaultOptions: defaultOptions,
+                    testTargets: testTargets,
+                    targetSelection: targetSelection,
+                    missingTargetPolicy: missingTargetPolicy
+                )
+            }
+        }
+
+        return Self(
+            testPlans: testPlans,
+            targets: [],
+            targetSelection: [],
             arguments: nil,
             configuration: configuration,
             attachDebugger: attachDebugger,
@@ -187,6 +253,7 @@ extension TestAction {
         set { options.coverage = newValue }
     }
 
+    @available(*, deprecated)
     public var codeCoverageTargets: [TargetReference] {
         get { options.codeCoverageTargets }
         set { options.codeCoverageTargets = newValue }
