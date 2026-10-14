@@ -15,22 +15,22 @@ import Foundation
 public struct GeneratedTestPlanTestableTarget: Codable, Hashable, Sendable, ExpressibleByStringInterpolation {
     /// The underlying testable target reference that identifies
     /// which target should be included in the generated test plan.
-    public let target: TestableTarget
+    public var target: TestableTarget
     /// A list of specific tests to include in the plan.
     ///
     /// Each entry uses the Xcode test identifier format, e.g.
     /// `"MyTests/testExample"` or `"MyTests"` for an entire suite.
     /// When non-empty, only these tests will be executed for this target.
     /// An empty array means all tests are included (subject to `skippedTests`).
-    public let selectedTests: [String]
+    public var selectedTests: [String]
     /// A list of specific tests to exclude from the plan.
     ///
     /// Each entry uses the Xcode test identifier format, e.g.
     /// `"MyTests/testExample"` or `"MyTests"` for an entire suite.
     /// These tests will be skipped even if they would otherwise run.
     /// An empty array means no tests are skipped.
-    public let skippedTests: [String]
-    
+    public var skippedTests: [String]
+
     public init(
         _ target: TestableTarget,
         selectedTests: [String] = [],
@@ -76,8 +76,8 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
     public struct Options: Codable, Hashable, Sendable {
         /// Arguments Passed On Launch
         public struct CommandLineArgumentEntry: Codable, Hashable, Sendable {
-            public let argument: String
-            public let enabled: Bool?
+            public var argument: String
+            public var enabled: Bool?
 
             public init(argument: String, enabled: Bool?) {
                 self.argument = argument
@@ -91,9 +91,9 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
 
         /// Environment Variables
         public struct VariableEntity: Codable, Hashable, Sendable {
-            public let enabled: Bool?
-            public let key: String
-            public let value: String
+            public var enabled: Bool?
+            public var key: String
+            public var value: String
 
             public init(key: String, value: String, enabled: Bool?) {
                 self.key = key
@@ -108,8 +108,8 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
 
         /// Simulated Location
         public struct LocationScenario: Codable, Hashable, Sendable {
-            public let identifier: String
-            public let referenceType: String
+            public var identifier: String
+            public var referenceType: String
 
             public init(identifier: String, referenceType: String) {
                 self.identifier = identifier
@@ -193,8 +193,8 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
 
         /// Address Sanitizer
         public struct AddressSanitizer: Codable, Hashable, Sendable {
-            public let detectStackUseAfterReturn: Bool?
-            public let enabled: Bool
+            public var detectStackUseAfterReturn: Bool?
+            public var enabled: Bool
 
             public init(detectStackUseAfterReturn: Bool? = nil, enabled: Bool = true) {
                 self.detectStackUseAfterReturn = detectStackUseAfterReturn
@@ -213,8 +213,8 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
                 case failure
             }
 
-            public let severity: Severity?
-            public let enabled: Bool?
+            public var severity: Severity?
+            public var enabled: Bool?
 
             public init(severity: Severity?, enabled: Bool?) {
                 self.severity = severity
@@ -231,8 +231,8 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
 
         /// Hardware Memory Tagging
         public struct CheckedAllocations: Codable, Hashable, Sendable {
-            public let enabled: Bool
-            public let requiresHardwareAcceleration: Bool
+            public var enabled: Bool
+            public var requiresHardwareAcceleration: Bool
 
             public init(enabled: Bool = true, requiresHardwareAcceleration: Bool) {
                 self.enabled = enabled
@@ -256,67 +256,67 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         }
         
         /// Arguments Passed On Launch
-        public let commandLineArgumentEntries: [CommandLineArgumentEntry]?
+        public var commandLineArgumentEntries: [CommandLineArgumentEntry]?
         /// Environment Variables
-        public let environmentVariableEntries: [VariableEntity]?
+        public var environmentVariableEntries: [VariableEntity]?
         /// Target for Variable Expansion
-        public let targetForVariableExpansion: TargetReference?
+        public var targetForVariableExpansion: TargetReference?
         /// Application Language
-        public let language: String?
+        public var language: String?
         /// Application Region
-        public let region: String?
+        public var region: String?
         /// Simulated Location
-        public let locationScenario: LocationScenario?
+        public var locationScenario: LocationScenario?
         /// Automatic Screen Capture
-        public let uiTestingScreenshotsLifetime: UITestingScreenshotsLifetime?
+        public var uiTestingScreenshotsLifetime: UITestingScreenshotsLifetime?
         /// Preferred Capture Format
-        public let preferredScreenCaptureFormat: PreferredScreenCaptureFormat?
+        public var preferredScreenCaptureFormat: PreferredScreenCaptureFormat?
         /// Localization Screenshots
-        public let areLocalizationScreenshotsEnabled: Bool?
+        public var areLocalizationScreenshotsEnabled: Bool?
         /// Distribution
-        public let distributor: Distributor?
+        public var distributor: Distributor?
         /// Attachments
-        public let userAttachmentLifetime: UserAttachmentLifetime?
+        public var userAttachmentLifetime: UserAttachmentLifetime?
         /// Collect Test Diagnostics on Failure
-        public let diagnosticCollectionPolicy: DiagnosticCollectionPolicy?
+        public var diagnosticCollectionPolicy: DiagnosticCollectionPolicy?
         /// XCTest Execution Order
-        public let testExecutionOrdering: TestExecutionOrdering?
+        public var testExecutionOrdering: TestExecutionOrdering?
         /// Test Timeouts
-        public let testTimeoutsEnabled: Bool?
+        public var testTimeoutsEnabled: Bool?
         /// Default Test Execution Time Allowance (s) (default: 600)
-        public let defaultTestExecutionTimeAllowance: Int?
+        public var defaultTestExecutionTimeAllowance: Int?
         /// Maximum Test Execution Time Allowance (s) (default: None)
-        public let maximumTestExecutionTimeAllowance: Int?
+        public var maximumTestExecutionTimeAllowance: Int?
         /// Test Repetition Mode
-        public let testRepetitionMode: TestRepetitionMode?
+        public var testRepetitionMode: TestRepetitionMode?
         /// Maximum Test Repetitions (default: 3)
-        public let maximumTestRepetitions: Int?
+        public var maximumTestRepetitions: Int?
         /// Relaunch Tests for Each Repetition
-        public let repeatInNewRunnerProcess: Bool?
+        public var repeatInNewRunnerProcess: Bool?
         /// Code Coverage
-        public let codeCoverage: Coverage?
+        public var codeCoverage: Coverage?
         /// Address Sanitizer
-        public let addressSanitizer: AddressSanitizer?
+        public var addressSanitizer: AddressSanitizer?
         /// Thread Sanitizer
-        public let threadSanitizerEnabled: Bool?
+        public var threadSanitizerEnabled: Bool?
         /// Undefined Behavior Sanitizer
-        public let undefinedBehaviorSanitizerEnabled: Bool?
+        public var undefinedBehaviorSanitizerEnabled: Bool?
         /// Main Thread Checker
-        public let mainThreadCheckerDetectionPolicy: RuntimeApiChecking?
+        public var mainThreadCheckerDetectionPolicy: RuntimeApiChecking?
         /// Thread Performance Checker
-        public let threadPerformanceCheckerRuntimeIssueDetection: RuntimeApiChecking?
+        public var threadPerformanceCheckerRuntimeIssueDetection: RuntimeApiChecking?
         /// Other Runtime Issues
-        public let runtimeIssueDetection: RuntimeApiChecking?
+        public var runtimeIssueDetection: RuntimeApiChecking?
         /// Hardware Memory Tagging
-        public let checkedAllocations: CheckedAllocations?
+        public var checkedAllocations: CheckedAllocations?
         /// Malloc Scribble
-        public let mallocScribbleEnabled: Bool?
+        public var mallocScribbleEnabled: Bool?
         /// Malloc Guard Edges
-        public let mallocGuardEdgesEnabled: Bool?
+        public var mallocGuardEdgesEnabled: Bool?
         /// Zombie Objects
-        public let nsZombieEnabled: Bool?
+        public var nsZombieEnabled: Bool?
         /// Malloc Stack Logging
-        public let mallocStackLoggingOptions: MallocStackLoggingOptions?
+        public var mallocStackLoggingOptions: MallocStackLoggingOptions?
         
         public init(
             commandLineArgumentEntries: [CommandLineArgumentEntry]?,
@@ -456,9 +456,9 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
     /// A build configuration of the generated test plan.
     public struct Configuration: Codable, Hashable {
         /// The name of the configuration.
-        public let name: String
+        public var name: String
         /// The options applied to this configuration.
-        public let options: Options?
+        public var options: Options?
 
         public init(name: String, options: Options?) {
             self.name = name
@@ -501,7 +501,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
     }
     
     /// Name of the test plan
-    public let name: String
+    public var name: String
     /// The path to the folder where the test plan will be generated. If the path is `nil`, it will be written to `Derived/TestPlans/<name>.xctestplan`
     public var directory: FilePath?
     /// Configurations
