@@ -197,10 +197,10 @@ extension TestAction {
         set { options.language = newValue.map { SchemeLanguage(identifier: $0) }  }
     }
 
-    public var region: String? {
-        get { options.region }
-        set { options.region = newValue }
-    }
+    // public var region: String? {
+    //     get { options.region }
+    //     set { options.region = newValue }
+    // }
 
     public var preferredScreenCaptureFormat: ScreenCaptureFormat? {
         get { options.preferredScreenCaptureFormat }
