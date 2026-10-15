@@ -1,3 +1,6 @@
+## ProjectDescription 1.1.0
+• [minor] Suppress objc class duplication warnings when loading plugins (#24)
+
 ## ProjectDescription 1.0.0
 [minor] fix: crash in PackageVersion when version is an empty string
 [minor] fix: crash in PackageVersion when version is an empty string
