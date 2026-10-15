@@ -12,7 +12,8 @@ tmp_build_dir="$tmp_dir/build"
 module_name="ProjectDescription"
 configuration="Release"
 framework_path="${tmp_build_dir}/${configuration}"
-output_path="$tmp_dir/current-abi.json"
+output_abi_path="$tmp_dir/current-abi.json"
+output_api_path="$tmp_dir/current-api.json"
 
 xcrun xcodebuild -scheme ProjectDescription \
     -configuration "$configuration" \
@@ -37,6 +38,20 @@ xcrun swift-api-digester \
         -abi \
         -sdk "$sdk_path" \
         -target "arm64-apple-macos" \
-        -o "$output_path"
+        -o "$output_abi_path"
 
-echo $output_path
+xcrun swift-api-digester \
+        -dump-sdk \
+        -abort-on-module-fail \
+        -module "$module_name" \
+        -use-interface-for-module "$module_name" \
+        -F "$framework_path" \
+        -I "$framework_path" \
+        -avoid-tool-args \
+        -avoid-location \
+        -sdk "$sdk_path" \
+        -target "arm64-apple-macos" \
+        -o "$output_api_path"
+
+echo $output_abi_path
+echo $output_api_path

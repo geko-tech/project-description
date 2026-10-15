@@ -39,21 +39,29 @@ jobs:
           if [[ $INPUT_TITLE =~ \[(.*)\] ]]; then
               NEW_BUMP_TYPE="${BASH_REMATCH[1]}"
           else
-              echo "Bump type not found" >&2; exit 1;
+              echo "Bump type not found. Please specify bump type in your pull request title. Example: [patch] fix very annoying bug." >&2; exit 1;
           fi
-          if [[ "$NEW_BUMP_TYPE" == "none" ]]; then
-            echo "Bump type none, skip compare"
-            exit 0
-          fi
+
           git fetch
+
           base_branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           target_branch=${{ github.event.pull_request.base.ref }}
+
           chmod +x ./scripts/helpers/build_and_dump.sh
           chmod +x ./scripts/helpers/abi_comparator.sh
+
           base_tmp_dir=$(mktemp -d)
-          base_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $base_tmp_dir)
-          git checkout -b target_branch
+          IFS=$'\n' read -r -d '' base_abi_dump_path base_api_dump_path < <(./scripts/helpers/build_and_dump.sh $base_tmp_dir)
+
+          git checkout $target_branch
           target_tmp_dir=$(mktemp -d)
-          target_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $target_tmp_dir)
-          ./scripts/helpers/abi_comparator.sh $base_tmp_dir $target_abi_dump_path $base_abi_dump_path $NEW_BUMP_TYPE
-          
+          IFS=$'\n' read -r -d '' target_abi_dump_path target_api_dump_path < <(./scripts/helpers/build_and_dump.sh $target_tmp_dir)
+
+          git checkout $base_branch
+
+          sources_changed=false
+          if git diff --name-only $target_branch $base_branch | grep -q "^Sources/ProjectDescription/"; then
+            sources_changed=true
+          fi
+
+          ./scripts/helpers/abi_comparator.sh $base_tmp_dir $target_abi_dump_path $base_abi_dump_path $target_api_dump_path $base_api_dump_path $sources_changed $NEW_BUMP_TYPE
