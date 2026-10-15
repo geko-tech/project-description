@@ -200,31 +200,14 @@ public struct TestAction: Equatable, Codable {
     ///   - postActions: Actions to execute after running the tests.
     /// - Returns: A test action.
     public static func testPlans(
-        list: [TestActionTestPlan],
+        list: [TestPlan],
         configuration: ConfigurationName = .debug,
         attachDebugger: Bool = true,
         preActions: [ExecutionAction] = [],
         postActions: [ExecutionAction] = []
     ) -> Self {
-        let testPlans: [TestPlan] = list.map { testPlan in
-            switch testPlan {
-            case let .file(path):
-                .file(path: path)
-            case let .generated(name, directory, configurations, defaultOptions, testTargets, targetSelection, missingTargetPolicy):
-                .generated(
-                    name: name,
-                    directory: directory,
-                    configurations: configurations,
-                    defaultOptions: defaultOptions,
-                    testTargets: testTargets,
-                    targetSelection: targetSelection,
-                    missingTargetPolicy: missingTargetPolicy
-                )
-            }
-        }
-
-        return Self(
-            testPlans: testPlans,
+        Self(
+            testPlans: list,
             targets: [],
             targetSelection: [],
             arguments: nil,
@@ -253,7 +236,6 @@ extension TestAction {
         set { options.coverage = newValue }
     }
 
-    @available(*, deprecated)
     public var codeCoverageTargets: [TargetReference] {
         get { options.codeCoverageTargets }
         set { options.codeCoverageTargets = newValue }

@@ -10,21 +10,17 @@ public struct TestableTarget: Equatable, Hashable, Codable, ExpressibleByStringI
     public var isParallelizable: Bool
     /// Execute tests in random order.
     public var isRandomExecutionOrdering: Bool
-    /// Enables test coverage
-    public var isCoverageEnabled: Bool
 
     public init(
         target: TargetReference,
         skipped: Bool = false,
         parallelizable: Bool = false,
-        randomExecutionOrdering: Bool = false,
-        coverage: Bool = false
+        randomExecutionOrdering: Bool = false
     ) {
         self.target = target
         isSkipped = skipped
         isParallelizable = parallelizable
         isRandomExecutionOrdering = randomExecutionOrdering
-        isCoverageEnabled = coverage
     }
 
     public init(
@@ -36,7 +32,6 @@ public struct TestableTarget: Equatable, Hashable, Codable, ExpressibleByStringI
         isSkipped = skipped
         isParallelizable = options.contains(.parallelizable)
         isRandomExecutionOrdering = options.contains(.randomExecutionOrdering)
-        isCoverageEnabled = options.contains(.coverage)
     }
 
     public init(stringLiteral value: String) {
