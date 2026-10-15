@@ -105,7 +105,7 @@ fi
 abi_report_path="$TMP_DIR/abi_breakage-report.log"
 log_info "Comparing ABI..."
 
-# WARNING: not work on x86_64
+# WARNING: does not work for x86_64
 set +e # Allow swift-api-digester to return a non-zero code
 xcrun swift-api-digester \
     -diagnose-sdk \
@@ -121,7 +121,7 @@ set -e
 api_report_path="$TMP_DIR/api-breakage-report.log"
 log_info "Comparing API..."
 
-# WARNING: not work on x86_64
+# WARNING: does not work for x86_64
 set +e # Allow swift-api-digester to return a non-zero code
 xcrun swift-api-digester \
     -diagnose-sdk \
