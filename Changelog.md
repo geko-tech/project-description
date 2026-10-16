@@ -1,3 +1,7 @@
+## ProjectDescription 1.2.0
+• [minor] Added declarative target selection and generated test plans (#26)
+• [minor] TargetDependency.macro
+
 ## ProjectDescription 1.1.0
 • [minor] Suppress objc class duplication warnings when loading plugins (#24)
 
