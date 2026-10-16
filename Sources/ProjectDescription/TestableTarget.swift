@@ -23,6 +23,17 @@ public struct TestableTarget: Equatable, Hashable, Codable, ExpressibleByStringI
         isRandomExecutionOrdering = randomExecutionOrdering
     }
 
+    public init(
+        target: TargetReference,
+        skipped: Bool = false,
+        options: TestingOptions = TestingOptions()
+    ) {
+        self.target = target
+        isSkipped = skipped
+        isParallelizable = options.contains(.parallelizable)
+        isRandomExecutionOrdering = options.contains(.randomExecutionOrdering)
+    }
+
     public init(stringLiteral value: String) {
         self.init(target: .init(projectPath: nil, target: value))
     }
