@@ -11,10 +11,11 @@ log_info() { echo "ℹ️ $1"; }
 # Input
 
 TMP_DIR=$1
-PREV_DUMP_PATH=$2
+PREV_ABI_DUMP_PATH=$2
 CURRENT_ABI_DUMP_PATH=$3
-BUMP_TYPE=$4
-
+PREV_API_DUMP_PATH=$4
+CURRENT_API_DUMP_PATH=$5
+BUMP_TYPE=$6
 
 get_priority() {
     case "$1" in
@@ -33,10 +34,8 @@ prepare_dump() {
     jq 'walk(if type == "object" then del(.deprecated) else . end)' "$input_path" > "$output_path"
 }
 
-bump_type_from_report() {
-    local report_path=$1
-    local bump_type=$2
-    local suitable_bump="patch"
+report_has_breaking_changes() {
+	local has_breaking_changes=1
 
     while IFS= read -r line; do
         # Skip system messages
@@ -53,12 +52,30 @@ bump_type_from_report() {
                 echo "⚠️  $message"
             elif [[ "$type" == "error" ]]; then
                 echo "⛔️ $message"
-                suitable_bump="minor"
+				has_breaking_changes=0
             fi
         else
             log_error "Invalid output line: $line"
         fi
-    done < $report_path
+    done < $1
+
+	return $has_breaking_changes
+}
+
+bump_type_from_report() {
+    local abi_report_path=$1
+	local api_report_path=$2
+    local bump_type=$3
+    local suitable_bump="patch"
+
+	if report_has_breaking_changes $abi_report_path; then
+		suitable_bump="minor"
+	fi
+
+	# TODO: api breakage does not work as intented
+	# if report_has_breaking_changes $api_report_path; then
+	# 	suitable_bump="major"
+	# fi
 
     # Validate real and expected bump types
     weight_bump_type=$(get_priority "$bump_type")
@@ -79,25 +96,40 @@ fi
 # Loading an old dump
 
 # Prepare old dump (remove all "deprecated")
-log_info "Prepare old dump"
-old_prepared_path="$TMP_DIR/old-prepared.json"
-prepare_dump "$PREV_DUMP_PATH" "$old_prepared_path"
-log_success "Dump prepared"
+# log_info "Prepare old dump"
+# old_prepared_path="$TMP_DIR/old-prepared.json"
+# prepare_dump "$PREV_ABI_DUMP_PATH" "$old_prepared_path"
+# log_success "Dump prepared"
 
 # ABI compare
-report_path="$TMP_DIR/breakage-report.log"
+abi_report_path="$TMP_DIR/abi_breakage-report.log"
 log_info "Comparing ABI..."
 
-# WARNING: not work on x86_64
+# WARNING: does not work for x86_64
 set +e # Allow swift-api-digester to return a non-zero code
 xcrun swift-api-digester \
     -diagnose-sdk \
-    -input-paths "$old_prepared_path" \
+    -input-paths "$PREV_ABI_DUMP_PATH" \
     -input-paths "$CURRENT_ABI_DUMP_PATH" \
     -disable-fail-on-error \
     -compiler-style-diags \
     -abi \
-    -error-on-abi-breakage 2> "$report_path"
+    -error-on-abi-breakage 2> "$abi_report_path"
 set -e
 
-bump_type_from_report $report_path $BUMP_TYPE
+# API compare
+api_report_path="$TMP_DIR/api-breakage-report.log"
+log_info "Comparing API..."
+
+# WARNING: does not work for x86_64
+set +e # Allow swift-api-digester to return a non-zero code
+xcrun swift-api-digester \
+    -diagnose-sdk \
+    -input-paths "$PREV_API_DUMP_PATH" \
+    -input-paths "$CURRENT_API_DUMP_PATH" \
+    -disable-fail-on-error \
+    -compiler-style-diags \
+    -error-on-abi-breakage 2> "$api_report_path"
+set -e
+
+bump_type_from_report $abi_report_path $api_report_path $BUMP_TYPE
