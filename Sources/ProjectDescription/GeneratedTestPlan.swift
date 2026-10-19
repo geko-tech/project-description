@@ -433,7 +433,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
                 testExecutionOrdering: testExecutionOrdering,
                 testTimeoutsEnabled: testTimeoutsEnabled,
                 defaultTestExecutionTimeAllowance: defaultTestExecutionTimeAllowance,
-                maximumTestExecutionTimeAllowance: maximumTestRepetitions,
+                maximumTestExecutionTimeAllowance: maximumTestExecutionTimeAllowance,
                 testRepetitionMode: testRepetitionMode,
                 maximumTestRepetitions: maximumTestRepetitions,
                 repeatInNewRunnerProcess: repeatInNewRunnerProcess,
