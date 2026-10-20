@@ -102,7 +102,6 @@ public enum TestPlan: Hashable, Codable, ExpressibleByStringLiteral, Expressible
         defaultOptions: GeneratedTestPlan.Options? = nil,
         testTargets: [GeneratedTestPlanTestableTarget] = [],
         targetSelection: [TestableTargetSelectionScope] = [],
-        missingTargetPolicy: GeneratedTestPlan.MissingTargetPolicy = .skipTestPlan()
     ) -> Self {
         .generated(
             GeneratedTestPlan(
@@ -112,7 +111,6 @@ public enum TestPlan: Hashable, Codable, ExpressibleByStringLiteral, Expressible
                 defaultOptions: defaultOptions,
                 testTargets: testTargets,
                 targetSelection: targetSelection,
-                missingTargetPolicy: missingTargetPolicy
             )
         )
     }
