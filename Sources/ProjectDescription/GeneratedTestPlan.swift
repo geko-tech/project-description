@@ -167,7 +167,7 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
             /// Random
             case random
         }
-        
+
         /// Test Repetition Mode
         public enum TestRepetitionMode: String, Codable, Hashable, Sendable {
             /// Until Failure
@@ -469,36 +469,6 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
             Self(name: name, options: options)
         }
     }
-
-    @frozen
-    public enum MissingTargetPolicy: Codable, Hashable, Sendable {
-        @frozen
-        public enum Notification: Codable, Equatable, Sendable {
-            /// Silently ignore — no output, no warnings.
-            case silent
-            /// Emit a warning to inform the user.
-            case warning
-        }
-        
-        /// Do not generate the test plan at all.
-        ///
-        /// - Parameter notification: Whether to silently skip or emit a warning.
-        ///
-        /// Use when a missing target makes the whole test plan meaningless.
-        case skipTestPlan(Notification = .warning)
-        
-        /// Skip only the missing target from the test plan.
-        ///
-        /// - Parameter notification: Whether to silently skip or emit a warning.
-        ///
-        /// Other valid targets in the plan will still be included.
-        case skipTarget(Notification = .warning)
-        
-        /// Fail the entire generation with an error.
-        ///
-        /// Use when all specified targets are strictly required.
-        case fail
-    }
     
     /// Name of the test plan
     public var name: String
@@ -512,8 +482,6 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
     public var testTargets: [GeneratedTestPlanTestableTarget]
     /// Scopes that resolve which test targets to include in the generated test plan.
     public var targetSelection: [TestableTargetSelectionScope]
-    /// Policy for handling missing targets.
-    public var missingTargetPolicy: MissingTargetPolicy
 
     // Internal
 
@@ -531,7 +499,6 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         defaultOptions: Options?,
         testTargets: [GeneratedTestPlanTestableTarget],
         targetSelection: [TestableTargetSelectionScope],
-        missingTargetPolicy: MissingTargetPolicy
     ) {
         self.name = name.split(separator: ".").first.map(String.init) ?? name
         self.directory = directory
@@ -539,7 +506,6 @@ public struct GeneratedTestPlan: Codable, Hashable, Sendable {
         self.defaultOptions = defaultOptions
         self.testTargets = testTargets
         self.targetSelection = targetSelection
-        self.missingTargetPolicy = missingTargetPolicy
         
         // Internal
         self.path = "/"
