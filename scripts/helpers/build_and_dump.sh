@@ -55,3 +55,4 @@ xcrun swift-api-digester \
 
 echo $output_abi_path
 echo $output_api_path
+printf '\0'
