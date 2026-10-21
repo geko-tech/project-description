@@ -5,7 +5,7 @@ public struct RegistryDependencies: Codable, Equatable {
     /// Collection of geko registry repositories
     ///
     /// Repositories at the top have more priority when searching for packages.
-    public var registries: [String]
+    public var registries: [Registry]
     /// List of external dependencies
     public var dependencies: [Dependency]
     /// Rules that describe how resolver should select flavors for packages
@@ -17,13 +17,28 @@ public struct RegistryDependencies: Codable, Equatable {
     ///   - dependencies: List of external dependencies
     ///   - flavorBehavior: Rules that describe how resolver should select flavors for packages
     public init(
-        registries: [String],
+        registries: [Registry],
         dependencies: [Dependency],
         flavorBehavior: FlavorBehavior = .default()
     ) {
         self.registries = registries
         self.dependencies = dependencies
         self.flavorBehavior = flavorBehavior
+    }
+
+    // MARK: - Registry
+
+    @frozen
+    /// Registry specification
+    public enum Registry: Codable, Hashable, ExpressibleByStringLiteral {
+        /// Remote registry accessible via api
+        case remote(url: String)
+        /// Remote registry accessible via git
+        case git(url: String)
+
+        public init(stringLiteral: String) {
+            self = .remote(url: stringLiteral)
+        }
     }
 
     // MARK: - Dependency
