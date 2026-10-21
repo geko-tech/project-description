@@ -1,7 +1,6 @@
 name: Check
 on:
-  pull_request_target:
-    types: [edited, opened, reopened, synchronize]
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
