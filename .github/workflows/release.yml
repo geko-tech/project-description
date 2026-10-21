@@ -121,7 +121,7 @@ jobs:
           chmod +x ./scripts/helpers/build_and_dump.sh
           chmod +x ./scripts/helpers/abi_comparator.sh
           tmp_dir=$(mktemp -d)
-          current_abi_dump_path=$(./scripts/helpers/build_and_dump.sh $tmp_dir)
+          IFS=$'\n' read -r -d '' current_abi_dump_path current_api_dump_path < <(./scripts/helpers/build_and_dump.sh $tmp_dir)
           old_abi_dump_path="$tmp_dir/old-abi.json"
           url="https://github.com/geko-tech/ProjectDescription/releases/download/${LATEST_VERSION}/current-abi.json"
           code=$(curl -L -s -w "%{http_code}" "$url" -o "$old_abi_dump_path")
@@ -129,11 +129,14 @@ jobs:
               echo "Failed to download API dumps. URL: $url (Status: $code)"
               exit 1
           fi
-          
-          ./scripts/helpers/abi_comparator.sh $tmp_dir $old_abi_dump_path $current_abi_dump_path $NEW_BUMP_TYPE
+
+          # TODO: api comparison
+          ./scripts/helpers/abi_comparator.sh $tmp_dir $old_abi_dump_path $current_abi_dump_path "" $current_api_dump_path true $NEW_BUMP_TYPE
 
           # zip current-abi.zip current_abi_dump_path
           echo "ABI_PATH=$current_abi_dump_path" >> $GITHUB_ENV
+          # zip current-api.zip current_api_dump_path
+          echo "API_PATH=$current_api_dump_path" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1.1.4
@@ -145,7 +148,7 @@ jobs:
           body: ${{ env.CHANGELOG }}
           draft: true
           prerelease: false
-      - name: Upload release binary
+      - name: Upload release abi dump
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -153,6 +156,15 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.ABI_PATH }}
           asset_name: current-abi.json
+          asset_content_type: application/json
+      - name: Upload release api dump
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.API_PATH }}
+          asset_name: current-api.json
           asset_content_type: application/json
       - name: Create Pull Request
         run: gh pr create --base main --head "release/${{ env.NEW_VERSION }}" --title "Release PR" --body "${{ env.NEW_VERSION }}"
