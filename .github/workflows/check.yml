@@ -34,6 +34,7 @@ jobs:
           fi
       - name: Check bump type
         run: |
+          set -x
           NEW_BUMP_TYPE=""
           if [[ $INPUT_TITLE =~ \[(.*)\] ]]; then
               NEW_BUMP_TYPE="${BASH_REMATCH[1]}"
