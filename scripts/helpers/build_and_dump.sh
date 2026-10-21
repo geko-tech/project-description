@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Stop execution on errors
-set -xe
+set -e
 
 # Helper functions for output
 log_error() { echo "❌ $1" >&2; exit 1; }
