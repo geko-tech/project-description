@@ -38,6 +38,7 @@ public enum TargetDependency: Codable, Hashable {
     ///
     /// - Parameters:
     ///   - name: Name of the target to depend on
+    ///   - status: The dependency status (optional dependencies are weakly linked)
     ///   - condition: condition under which to use this dependency, `nil` if this should always be used
     case local(name: String, status: LinkingStatus = .required, condition: PlatformCondition? = nil)
 
