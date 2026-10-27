@@ -1,3 +1,9 @@
+## ProjectDescription 1.2.0
+• [minor] remove MissingTargetPolicy from GeneratedTestPlan (#34)
+• [patch] fix GeneratedTestPlan.options(...) (#31)
+• [minor] Added declarative target selection and generated test plans (#26)
+• [minor] TargetDependency.macro
+
 ## ProjectDescription 1.1.0
 • [minor] Suppress objc class duplication warnings when loading plugins (#24)
 
