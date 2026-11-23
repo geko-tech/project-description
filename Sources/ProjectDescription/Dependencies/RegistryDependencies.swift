@@ -50,12 +50,12 @@ public struct RegistryDependencies: Codable, Equatable {
         /// - Parameters:
         ///   - name: Name of the package
         ///   - requirement: Version requirement
-        ///   - repo: Explicitly use package from repository url. If nil, package will be used from list of available top level repositories.
+        ///   - registry: Explicitly use package from specified registry. If nil, package will be used from list of all available registries.
         ///   - flavor: Flavor to use for this package. If nil, flavor will be determined using FlavorBehavior.
         case remote(
             name: String,
             requirement: Requirement,
-            repo: String? = nil,
+            registry: Registry? = nil,
             flavor: String? = nil
         )
         /// Dependency on a package from `.json` file.
